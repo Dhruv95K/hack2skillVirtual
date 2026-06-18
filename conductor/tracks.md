@@ -15,7 +15,7 @@ Last updated: 2026-06-18
 
 | # | Task | Classification | Status | Commit SHA |
 |---|---|---|---|---|
-| 1 | Project Scaffolding & Infrastructure | infra | `[R]` | f7feb56 |
+| 1 | Project Scaffolding & Infrastructure | infra | `[x]` | 8cbf4fc |
 | 2 | Authentication (Signup / Login) | fullstack | `[ ]` | — |
 | 3 | Onboarding Quiz | fullstack | `[ ]` | — |
 | 4 | Activity Logging & CO₂ Calculation Engine | fullstack | `[ ]` | — |
