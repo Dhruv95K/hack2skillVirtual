@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
   );
   const { data: { user } } = await supabase.auth.getUser();
 
-  const isE2E = request.cookies.has('e2e-mock-auth');
+  const isE2E = process.env.NODE_ENV !== 'production' && request.cookies.has('e2e-mock-auth');
   const isProtected = PROTECTED_ROUTES.some(r => request.nextUrl.pathname.startsWith(r));
 
   if (isProtected && !user && !isE2E) {

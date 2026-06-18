@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -17,8 +18,13 @@ export async function POST(request: NextRequest) {
   // Create user record in our DB
   try {
     await prisma.user.create({ data: { id: data.user!.id, email, name } });
-  } catch (err: any) {
-    // If user already exists in Prisma but signed up in Supabase (or other db error)
+  } catch (err: unknown) {
+    // If user already exists in Prisma but signed up in Supabase (or other db error), rollback auth
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    await supabaseAdmin.auth.admin.deleteUser(data.user!.id);
     return NextResponse.json({ error: 'Failed to create user record' }, { status: 400 });
   }
   

@@ -130,7 +130,7 @@ export default function SignUpPage() {
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
-                type={showPassword ? 'text' : 'password'}
+                type="password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 disabled={loading}
