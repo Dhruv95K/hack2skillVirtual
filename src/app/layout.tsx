@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
-import { Fira_Code, Fira_Sans } from 'next/font/google';
+import { Fira_Code, Fira_Sans, Geist } from 'next/font/google';
 import './globals.css';
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const firaCode = Fira_Code({
   subsets: ['latin'],
@@ -30,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${firaCode.variable} ${firaSans.variable} dark`}
+      className={cn("dark", firaCode.variable, firaSans.variable, "font-sans", geist.variable)}
     >
       <body className="bg-background text-foreground font-body antialiased min-h-screen">
         {children}
