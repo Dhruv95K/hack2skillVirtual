@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String
+  streak        Int            @default(0)
+  level         Int            @default(1)
+  totalCo2Saved Float          @default(0) @map("total_co2_saved")
+  lastLoggedAt  DateTime?      @map("last_logged_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  quizResponses QuizResponse[]
+  activityLogs  ActivityLog[]
+  userBadges    UserBadge[]
+  aiInsights    AiInsight[]
+
+  @@map("users")
+}
+
+model QuizResponse {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  category    String
+  questionKey String   @map("question_key")
+  answer      String
+  createdAt   DateTime @default(now()) @map("created_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_responses")
+}
+
+model ActivityLog {
+  id       String   @id @default(uuid())
+  userId   String   @map("user_id")
+  category String
+  subType  String   @map("sub_type")
+  quantity Float
+  unit     String
+  co2Kg    Float    @map("co2_kg")
+  loggedAt DateTime @default(now()) @map("logged_at")
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
+
+model Badge {
+  id             String      @id @default(uuid())
+  key            String      @unique
+  name           String
+  description    String
+  icon           String
+  thresholdType  String      @map("threshold_type")
+  thresholdValue Float       @map("threshold_value")
+  userBadges     UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  userId   String   @map("user_id")
+  badgeId  String   @map("badge_id")
+  earnedAt DateTime @default(now()) @map("earned_at")
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge    Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+  @@map("user_badges")
+}
+
+model AiInsight {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  content     String
+  generatedAt DateTime @default(now()) @map("generated_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_insights")
+}

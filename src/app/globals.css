@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* EcoTrack Design System — Organic Biophilic Theme */
+/* Tailwind v4 uses @theme for design tokens instead of tailwind.config.ts */
+
+:root {
+  --background: #020617;
+  --foreground: #F8FAFC;
+  --surface: #0F172A;
+  --surface-2: #1E293B;
+  --accent: #22C55E;
+  --accent-hover: #16A34A;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --font-heading: var(--font-fira-code), monospace;
+  --font-body: var(--font-fira-sans), sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
