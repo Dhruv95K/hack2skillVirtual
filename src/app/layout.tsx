@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Toaster } from '@/components/ui/sonner';
 import { Fira_Code, Fira_Sans, Geist } from 'next/font/google';
 import './globals.css';
 import { cn } from "@/lib/utils";
@@ -25,7 +26,6 @@ export const metadata: Metadata = {
     'Understand, track, and reduce your personal carbon footprint with AI-powered insights and gamified challenges.',
 };
 
-import { Toaster } from '@/components/ui/sonner';
 
 export default function RootLayout({
   children,

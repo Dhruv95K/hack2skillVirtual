@@ -49,6 +49,7 @@ model ActivityLog {
   loggedAt DateTime @default(now()) @map("logged_at")
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, loggedAt(sort: Desc)])
   @@map("activity_logs")
 }
 
@@ -83,5 +84,6 @@ model AiInsight {
   generatedAt DateTime @default(now()) @map("generated_at")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("ai_insights")
 }

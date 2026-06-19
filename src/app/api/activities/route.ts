@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { calculateActivityCO2 } from '@/lib/co2-calculator';
 import { checkAndAwardBadges, updateStreak } from '@/lib/gamification-engine';
+import { ACTIVITY_UNITS } from '@/lib/constants';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -44,6 +45,11 @@ export async function POST(request: NextRequest) {
   if (!category || !subType || quantity == null || !unit || typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
     return NextResponse.json({ error: 'Missing or invalid required fields' }, { status: 400 });
   }
+
+  const expectedUnit = (ACTIVITY_UNITS as any)[subType] || (ACTIVITY_UNITS as any)[category];
+  if (expectedUnit && unit !== expectedUnit) {
+    return NextResponse.json({ error: `Invalid unit for ${subType || category}. Expected ${expectedUnit}` }, { status: 400 });
+  }
   
   let co2Kg: number;
   try { 
@@ -66,8 +72,12 @@ export async function POST(request: NextRequest) {
       return createdLog;
     });
 
-    await updateStreak(user.id);
-    await checkAndAwardBadges(user.id);
+    try {
+      await updateStreak(user.id);
+      await checkAndAwardBadges(user.id);
+    } catch (gamificationErr) {
+      console.error('Gamification post-transaction error:', gamificationErr);
+    }
     
     return NextResponse.json({ log }, { status: 201 });
   } catch (err) {
