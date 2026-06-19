@@ -1,4 +1,5 @@
 import { OffsetsClient } from './offsets-client';
+import { OFFSET_PROGRAMS } from '@/lib/offsets';
 
 export const metadata = {
   title: 'Carbon Offsets | EcoTrack',
@@ -16,7 +17,7 @@ export default function OffsetsPage() {
         </p>
       </div>
       
-      <OffsetsClient />
+      <OffsetsClient programs={OFFSET_PROGRAMS} />
 
       <div className="mt-8 text-center pb-8">
         <p className="text-sm text-muted-foreground">

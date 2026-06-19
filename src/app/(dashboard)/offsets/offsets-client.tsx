@@ -1,9 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
-import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button';
@@ -30,53 +28,15 @@ const cardVariants: Variants = {
   },
 };
 
-function OffsetsSkeleton() {
-  return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <Card key={i} className="border-l-4 border-accent bg-surface/95 ring-white/8">
-          <CardHeader className="gap-2">
-            <Skeleton className="h-6 w-1/2 bg-white/10" />
-            <Skeleton className="h-4 w-full bg-white/10" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2">
-              <Skeleton className="h-5 w-16 bg-white/10" />
-              <Skeleton className="h-5 w-16 bg-white/10" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-export function OffsetsClient() {
-  const [programs, setPrograms] = useState<OffsetProgram[]>([]);
-  const [loading, setLoading] = useState(true);
+export function OffsetsClient({ programs }: { programs: readonly OffsetProgram[] }) {
   const shouldReduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    async function fetchPrograms() {
-      try {
-        const response = await fetch('/api/offsets');
-        if (!response.ok) {
-          throw new Error('Failed to fetch offsets');
-        }
-        const data = await response.json();
-        setPrograms(data.programs || []);
-      } catch (error) {
-        console.error('[offsets] fetch error', error);
-        toast.error('Failed to load carbon offset programs.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPrograms();
-  }, []);
-
-  if (loading) {
-    return <OffsetsSkeleton />;
+  if (!programs || programs.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">No offset programs are available at this time.</p>
+      </div>
+    );
   }
 
   return (
@@ -120,6 +80,7 @@ export function OffsetsClient() {
                 href={program.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
+                aria-label={`Visit ${program.name} website`}
                 className={cn(buttonVariants({ variant: 'secondary' }), "w-full gap-2")}
               >
                 Visit Website <ExternalLink className="size-4" />

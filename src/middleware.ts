@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PROTECTED_ROUTES = ['/dashboard', '/log', '/quiz', '/insights', '/gamification', '/offsets'];
+const PROTECTED_ROUTES = ['/dashboard', '/log', '/quiz', '/insights', '/gamification'];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -32,5 +32,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/log/:path*', '/quiz/:path*', '/insights/:path*', '/gamification/:path*', '/offsets/:path*', '/signin', '/signup'],
+  matcher: ['/dashboard/:path*', '/log/:path*', '/quiz/:path*', '/insights/:path*', '/gamification/:path*', '/signin', '/signup'],
 };
