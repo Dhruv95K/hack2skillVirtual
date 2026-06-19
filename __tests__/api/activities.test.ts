@@ -9,8 +9,8 @@ jest.mock('@/lib/supabase/server', () => ({
 }));
 
 jest.mock('@/lib/prisma', () => {
-  const mockPrisma = {
-    $transaction: jest.fn(async (cb) => cb(mockPrisma)),
+  const mockPrisma: any = {
+    $transaction: jest.fn(async (cb: any) => cb(mockPrisma)),
     activityLog: {
       create: jest.fn().mockResolvedValue({ id: 'log-1', co2Kg: 17.1 }),
       findMany: jest.fn(),

@@ -2,7 +2,6 @@
 
 import { calculateActivityCO2 } from '@/lib/co2-calculator';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
 
 interface Co2PreviewProps {
   category: string;
