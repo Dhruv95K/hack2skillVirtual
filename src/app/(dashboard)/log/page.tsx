@@ -27,17 +27,22 @@ const CategoryIcon = ({ category }: { category: string }) => {
 export default function LogActivityPage() {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   const fetchLogs = useCallback(async () => {
     try {
+      setError(null);
       const res = await fetch('/api/activities?limit=10');
       if (res.ok) {
         const data = await res.json();
         setLogs(data.logs);
+      } else {
+        setError('Failed to load recent activities');
       }
     } catch (e) {
       console.error('Failed to fetch logs:', e);
+      setError('Failed to load recent activities');
     } finally {
       setLoading(false);
     }
@@ -64,6 +69,10 @@ export default function LogActivityPage() {
           {loading ? (
             <div className="flex justify-center p-8">
               <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
+            </div>
+          ) : error ? (
+            <div className="text-center p-8 text-red-500 border-2 border-dashed border-red-200 dark:border-red-900/50 rounded-lg bg-red-50 dark:bg-red-950/20">
+              {error}
             </div>
           ) : logs.length === 0 ? (
             <div className="text-center p-8 text-muted-foreground border-2 border-dashed rounded-lg">

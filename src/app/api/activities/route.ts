@@ -46,6 +46,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing or invalid required fields' }, { status: 400 });
   }
 
+  if (!['transport', 'food', 'energy'].includes(category)) {
+    return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
+  }
+
   const expectedUnit = (ACTIVITY_UNITS as any)[subType] || (ACTIVITY_UNITS as any)[category];
   if (expectedUnit && unit !== expectedUnit) {
     return NextResponse.json({ error: `Invalid unit for ${subType || category}. Expected ${expectedUnit}` }, { status: 400 });
