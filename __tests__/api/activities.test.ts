@@ -62,6 +62,8 @@ describe('/api/activities', () => {
 
       (prisma.activityLog.create as jest.Mock).mockResolvedValue({ id: 'log-1', co2Kg: 17.1 });
       (prisma.user.update as jest.Mock).mockResolvedValue({});
+      const mockUpdatedUser = { id: 'user-1', streak: 2 };
+      (updateStreak as jest.Mock).mockResolvedValue(mockUpdatedUser);
 
       const request = new NextRequest('http://localhost/api/activities', { 
         method: 'POST', 
@@ -88,7 +90,7 @@ describe('/api/activities', () => {
       }));
       
       expect(updateStreak).toHaveBeenCalledWith('user-1');
-      expect(checkAndAwardBadges).toHaveBeenCalledWith('user-1');
+      expect(checkAndAwardBadges).toHaveBeenCalledWith('user-1', mockUpdatedUser);
     });
 
     it('returns 400 on invalid JSON', async () => {
