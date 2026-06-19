@@ -48,8 +48,6 @@ export default function LogActivityPage() {
     fetchLogs();
   }, [fetchLogs]);
 
-  if (!isMounted) return null;
-
   return (
     <div className="container mx-auto py-8 max-w-4xl space-y-8">
       <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-8">
@@ -87,9 +85,9 @@ export default function LogActivityPage() {
                   {logs.map((log) => (
                     <tr key={log.id} className="border-b dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
                       <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">
-                        {new Date(log.loggedAt).toLocaleDateString(undefined, {
+                        {isMounted ? new Date(log.loggedAt).toLocaleDateString(undefined, {
                           month: 'short', day: 'numeric', year: 'numeric'
-                        })}
+                        }) : ''}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 capitalize">

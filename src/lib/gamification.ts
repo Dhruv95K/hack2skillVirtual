@@ -1,14 +1,14 @@
 export const LEVEL_THRESHOLDS = [
-  { level: 1, name: 'Seedling', minCO2Saved: 0 },
-  { level: 2, name: 'Sprout', minCO2Saved: 5 },
-  { level: 3, name: 'Sapling', minCO2Saved: 15 },
-  { level: 4, name: 'Young Tree', minCO2Saved: 30 },
-  { level: 5, name: 'Rooted', minCO2Saved: 50 },
-  { level: 6, name: 'Branching Out', minCO2Saved: 75 },
-  { level: 7, name: 'Forest Guardian', minCO2Saved: 100 },
-  { level: 8, name: 'Ecosystem Builder', minCO2Saved: 150 },
-  { level: 9, name: 'Climate Warrior', minCO2Saved: 250 },
-  { level: 10, name: 'Carbon Champion', minCO2Saved: 500 },
+  { level: 1, name: 'Seedling', minCO2Tracked: 0 },
+  { level: 2, name: 'Sprout', minCO2Tracked: 5 },
+  { level: 3, name: 'Sapling', minCO2Tracked: 15 },
+  { level: 4, name: 'Young Tree', minCO2Tracked: 30 },
+  { level: 5, name: 'Rooted', minCO2Tracked: 50 },
+  { level: 6, name: 'Branching Out', minCO2Tracked: 75 },
+  { level: 7, name: 'Forest Guardian', minCO2Tracked: 100 },
+  { level: 8, name: 'Ecosystem Builder', minCO2Tracked: 150 },
+  { level: 9, name: 'Climate Warrior', minCO2Tracked: 250 },
+  { level: 10, name: 'Carbon Champion', minCO2Tracked: 500 },
 ];
 
 export const BADGE_DEFINITIONS = [
@@ -55,9 +55,9 @@ export const BADGE_DEFINITIONS = [
   {
     key: 'carbon_crusher',
     name: 'Carbon Crusher',
-    description: 'Save 100 kg CO₂ total',
+    description: 'Track 100 kg CO₂ total',
     icon: 'Trophy',
-    thresholdType: 'co2_saved',
+    thresholdType: 'co2_tracked',
     thresholdValue: 100,
   },
 ];

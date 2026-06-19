@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
         await tx.user.update({
           where: { id: userId },
-          data: { totalCo2Saved: 0 },
+          data: { totalCo2Tracked: 0 },
         });
       });
     }

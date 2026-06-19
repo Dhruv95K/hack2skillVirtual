@@ -29,11 +29,11 @@ test.describe('Onboarding quiz', () => {
     await page.getByLabel(/primary mode of daily transport/i).selectOption('car_petrol');
     await page.getByLabel(/how many km do you travel per week/i).fill('120');
     await page.getByLabel(/how many flights do you take per year/i).fill('2');
-    await page.getByRole('button', { name: /next/i }).click();
+    await page.getByRole('button', { name: 'Next', exact: true }).click();
 
     await page.getByLabel(/how would you describe your diet/i).selectOption('vegan');
     await page.getByLabel(/how many meat meals do you eat per week/i).fill('0');
-    await page.getByRole('button', { name: /next/i }).click();
+    await page.getByRole('button', { name: 'Next', exact: true }).click();
 
     await page.getByLabel(/what is your home size/i).selectOption('2bedroom');
     await page.getByLabel(/estimated monthly electricity use/i).fill('200');

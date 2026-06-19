@@ -11,20 +11,15 @@ interface Co2PreviewProps {
 }
 
 export function Co2Preview({ category, subType, quantity }: Co2PreviewProps) {
-  const [co2, setCo2] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!category || !subType || isNaN(quantity) || quantity <= 0) {
-      setCo2(null);
-      return;
-    }
+  let co2: number | null = null;
+  
+  if (category && subType && !isNaN(quantity) && quantity > 0) {
     try {
-      const val = calculateActivityCO2(category, subType, quantity);
-      setCo2(val);
+      co2 = calculateActivityCO2(category, subType, quantity);
     } catch (e) {
-      setCo2(null);
+      co2 = null;
     }
-  }, [category, subType, quantity]);
+  }
 
   if (co2 === null) return null;
 

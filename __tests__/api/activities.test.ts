@@ -84,7 +84,7 @@ describe('/api/activities', () => {
       
       expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
         where: { id: 'user-1' },
-        data: { totalCo2Saved: { increment: 17.1 } }
+        data: { totalCo2Tracked: { increment: 17.1 } }
       }));
       
       expect(updateStreak).toHaveBeenCalledWith('user-1');

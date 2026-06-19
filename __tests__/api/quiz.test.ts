@@ -338,7 +338,7 @@ describe('POST /api/quiz', () => {
     });
     expect(transactionUserUpdate).toHaveBeenCalledWith({
       where: { id: 'user-1' },
-      data: { totalCo2Saved: 0 },
+      data: { totalCo2Tracked: 0 },
     });
   });
 });

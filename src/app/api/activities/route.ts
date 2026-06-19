@@ -15,13 +15,17 @@ export async function GET(request: NextRequest) {
   } else {
     limit = Math.min(limit, 100);
   }
-  const logs = await prisma.activityLog.findMany({ 
-    where: { userId: user.id }, 
-    orderBy: { loggedAt: 'desc' }, 
-    take: limit 
-  });
-  
-  return NextResponse.json({ logs });
+  try {
+    const logs = await prisma.activityLog.findMany({ 
+      where: { userId: user.id }, 
+      orderBy: { loggedAt: 'desc' }, 
+      take: limit 
+    });
+    return NextResponse.json({ logs });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -48,21 +52,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 }); 
   }
   
-  const log = await prisma.$transaction(async (tx) => {
-    const createdLog = await tx.activityLog.create({ 
-      data: { userId: user.id, category, subType, quantity, unit, co2Kg } 
+  try {
+    const log = await prisma.$transaction(async (tx) => {
+      const createdLog = await tx.activityLog.create({ 
+        data: { userId: user.id, category, subType, quantity, unit, co2Kg } 
+      });
+      
+      await tx.user.update({ 
+        where: { id: user.id }, 
+        data: { totalCo2Tracked: { increment: co2Kg } } 
+      });
+      
+      return createdLog;
     });
-    
-    await tx.user.update({ 
-      where: { id: user.id }, 
-      data: { totalCo2Saved: { increment: co2Kg } } 
-    });
-    
-    return createdLog;
-  });
 
-  await updateStreak(user.id);
-  await checkAndAwardBadges(user.id);
-  
-  return NextResponse.json({ log }, { status: 201 });
+    await updateStreak(user.id);
+    await checkAndAwardBadges(user.id);
+    
+    return NextResponse.json({ log }, { status: 201 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
+  }
 }
