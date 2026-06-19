@@ -50,3 +50,9 @@ export function calculateBaseline(answers: QuizAnswers): BaselineResult {
     total: +total.toFixed(2),
   };
 }
+
+export function calculateActivityCO2(category: string, subType: string, quantity: number): number {
+  const factors = EMISSION_FACTORS[category as keyof typeof EMISSION_FACTORS];
+  if (!factors || !(subType in factors)) throw new Error(`Unknown sub-type: ${subType}`);
+  return +(quantity * (factors as Record<string, number>)[subType]).toFixed(3);
+}

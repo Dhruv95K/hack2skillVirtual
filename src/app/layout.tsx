@@ -25,6 +25,8 @@ export const metadata: Metadata = {
     'Understand, track, and reduce your personal carbon footprint with AI-powered insights and gamified challenges.',
 };
 
+import { Toaster } from '@/components/ui/sonner';
+
 export default function RootLayout({
   children,
 }: {
@@ -37,6 +39,7 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground font-body antialiased min-h-screen">
         {children}
+        <Toaster />
       </body>
     </html>
   );
