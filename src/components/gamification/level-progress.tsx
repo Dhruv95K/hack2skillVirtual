@@ -20,7 +20,7 @@ export function LevelProgress({
   let progressValue = 100;
   let text = 'Max level reached!';
   
-  if (nextLevelThreshold && nextLevelThreshold > currentLevelThreshold) {
+  if (nextLevelThreshold != null && nextLevelThreshold > currentLevelThreshold) {
     progressValue = ((co2Saved - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)) * 100;
     progressValue = Math.min(Math.max(progressValue, 0), 100);
     const co2ToNext = (nextLevelThreshold - co2Saved).toFixed(1);

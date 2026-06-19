@@ -1,5 +1,6 @@
 import { LEVEL_THRESHOLDS, BADGE_DEFINITIONS } from './gamification';
 import { prisma } from './prisma';
+import { User } from '@prisma/client';
 
 export function computeLevel(co2Saved: number): { level: number; name: string } {
   const thresholds = [...LEVEL_THRESHOLDS].sort((a, b) => b.minCO2Tracked - a.minCO2Tracked);
@@ -31,13 +32,13 @@ export async function updateStreak(userId: string) {
   if (lastLogged) { lastLogged.setUTCHours(0,0,0,0); }
   const daysDiff = lastLogged ? Math.floor((today.getTime() - lastLogged.getTime()) / 86400000) : null;
   let newStreak = user.streak;
+  if (daysDiff === 0) return user;
   if (daysDiff === null || daysDiff > 1) newStreak = 1;        // first log or gap > 1 day
   else if (daysDiff === 1) newStreak = user.streak + 1;         // consecutive day
-  // daysDiff === 0: same day, streak unchanged
   return prisma.user.update({ where: { id: userId }, data: { streak: newStreak, lastLoggedAt: new Date() } });
 }
 
-export async function checkAndAwardBadges(userId: string, userRecord?: any) {
+export async function checkAndAwardBadges(userId: string, userRecord?: User | null) {
   const user = userRecord || await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return;
   const totalLogs = await prisma.activityLog.count({ where: { userId } });
