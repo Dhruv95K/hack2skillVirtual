@@ -10,13 +10,18 @@ jest.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="responsive-container">{children}</div>
   ),
-  PieChart: () => <div data-testid="pie-chart" />,
+  PieChart: ({ children }: any) => <div data-testid="pie-chart">{children}</div>,
   Pie: () => null,
   Cell: () => null,
   Tooltip: (props: any) => {
     if (React.isValidElement(props.content)) {
       const Content = props.content.type as React.FC<any>;
-      return <Content active={true} payload={[{ payload: { color: '#22C55E' }, name: 'Transport', value: 10.5 }]} />;
+      return (
+        <div data-testid="tooltip-container">
+          <Content active={true} payload={[{ payload: { color: '#22C55E' }, name: 'Transport', value: 10.5 }]} />
+          <Content active={false} payload={[]} />
+        </div>
+      );
     }
     return null;
   },

@@ -10,14 +10,22 @@ jest.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="responsive-container">{children}</div>
   ),
-  AreaChart: () => <div data-testid="area-chart" />,
+  AreaChart: ({ children }: any) => <div data-testid="area-chart">{children}</div>,
   Area: () => null,
   XAxis: () => null,
-  YAxis: () => null,
+  YAxis: (props: any) => {
+    if (props.tickFormatter) props.tickFormatter(100);
+    return null;
+  },
   Tooltip: (props: any) => {
     if (React.isValidElement(props.content)) {
       const Content = props.content.type as React.FC<any>;
-      return <Content active={true} payload={[{ payload: { displayDate: 'Jun 18' }, value: 5.2 }]} />;
+      return (
+        <div data-testid="tooltip-container">
+          <Content active={true} payload={[{ payload: { displayDate: 'Jun 18' }, value: 5.2 }]} />
+          <Content active={false} payload={[]} />
+        </div>
+      );
     }
     return null;
   },
