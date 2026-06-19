@@ -340,6 +340,47 @@ describe('/api/insights', () => {
     expect(prisma.aiInsight.create).not.toHaveBeenCalled();
   });
 
+  it('rejects if GEMINI_API_KEY is missing', async () => {
+    const originalKey = process.env.GEMINI_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+    (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+    (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([{ id: 'log-1', category: 'energy', subType: 'electricity', quantity: 10, unit: 'kWh', co2Kg: 5, loggedAt: new Date() }]);
+
+    const request = new NextRequest('http://localhost/api/insights', { method: 'POST' });
+    const response = await POST(request);
+    expect(response.status).toBe(500);
+    process.env.GEMINI_API_KEY = originalKey;
+  });
+
+  it('rejects Gemini responses that do not contain a JSON array structure', async () => {
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+    (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+    (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([{ id: 'log-1', category: 'energy', subType: 'electricity', quantity: 10, unit: 'kWh', co2Kg: 5, loggedAt: new Date() }]);
+
+    mockGenerateContent.mockResolvedValue({
+      response: { text: () => 'Here are some tips: \n 1. Do this. \n 2. Do that.' },
+    });
+
+    const request = new NextRequest('http://localhost/api/insights', { method: 'POST' });
+    const response = await POST(request);
+    expect(response.status).toBe(500);
+  });
+
+  it('rejects Gemini responses that are valid JSON but not an array', async () => {
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+    (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+    (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([{ id: 'log-1', category: 'energy', subType: 'electricity', quantity: 10, unit: 'kWh', co2Kg: 5, loggedAt: new Date() }]);
+
+    mockGenerateContent.mockResolvedValue({
+      response: { text: () => '{"tip1": "Do this", "tip2": "Do that"}' },
+    });
+
+    const request = new NextRequest('http://localhost/api/insights', { method: 'POST' });
+    const response = await POST(request);
+    expect(response.status).toBe(500);
+  });
+
   describe('GET', () => {
     it('returns 401 if user is not authenticated', async () => {
       const mockGetUser = jest.fn().mockResolvedValue({ data: { user: null }, error: null });
@@ -466,6 +507,36 @@ describe('/api/insights', () => {
         generatedAt: null,
         message: 'Generate personalized tips from your latest activity logs.',
       });
+    });
+
+    it('returns 500 on database error during GET', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+      (prisma.aiInsight.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+      const request = new NextRequest('http://localhost/api/insights', { method: 'GET' });
+      const response = await GET(request);
+      expect(response.status).toBe(500);
+    });
+
+    it('handles persisted content that is valid JSON but not an array', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const mockDate = new Date('2026-06-19T10:00:00.000Z');
+      (prisma.aiInsight.findFirst as jest.Mock).mockResolvedValue({
+        id: 'insight-4',
+        userId: 'user-1',
+        content: '{"not": "array"}',
+        generatedAt: mockDate,
+      });
+
+      const request = new NextRequest('http://localhost/api/insights', { method: 'GET' });
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.tips).toEqual([]);
     });
   });
 });
