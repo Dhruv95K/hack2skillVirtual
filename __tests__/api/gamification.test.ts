@@ -30,6 +30,16 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 describe('GET /api/gamification', () => {
+  let consoleErrorSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+
+  afterAll(() => {
+    consoleErrorSpy.mockRestore();
+  });
+
   it('returns gamification data', async () => {
     const req = new NextRequest('http://localhost:3000/api/gamification');
     const res = await GET(req);
