@@ -247,6 +247,77 @@ describe('/api/insights', () => {
     expect(prisma.aiInsight.create).not.toHaveBeenCalled();
   });
 
+  it('rejects Gemini responses with more than 5 tips', async () => {
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-4' } }, error: null });
+    (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+    (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'log-11',
+        category: 'food',
+        subType: 'plant_based_meal',
+        quantity: 2,
+        unit: 'meals',
+        co2Kg: 1.0,
+        loggedAt: new Date('2026-06-18T18:00:00.000Z'),
+      },
+    ]);
+
+    mockGenerateContent.mockResolvedValue({
+      response: {
+        text: () =>
+          JSON.stringify([
+            { title: 'Tip 1', description: 'd', estimatedSavingKg: 1.1, category: 'food' },
+            { title: 'Tip 2', description: 'd', estimatedSavingKg: 1.1, category: 'food' },
+            { title: 'Tip 3', description: 'd', estimatedSavingKg: 1.1, category: 'food' },
+            { title: 'Tip 4', description: 'd', estimatedSavingKg: 1.1, category: 'food' },
+            { title: 'Tip 5', description: 'd', estimatedSavingKg: 1.1, category: 'food' },
+            { title: 'Tip 6', description: 'd', estimatedSavingKg: 1.1, category: 'food' },
+          ]),
+      },
+    });
+
+    const request = new NextRequest('http://localhost/api/insights', { method: 'POST' });
+    const response = await POST(request);
+
+    expect(response.status).toBe(500);
+    expect(prisma.aiInsight.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects Gemini tips with invalid estimated savings', async () => {
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-5' } }, error: null });
+    (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+    (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'log-12',
+        category: 'energy',
+        subType: 'electricity',
+        quantity: 150,
+        unit: 'kWh',
+        co2Kg: 12.3,
+        loggedAt: new Date('2026-06-18T18:00:00.000Z'),
+      },
+    ]);
+
+    mockGenerateContent.mockResolvedValue({
+      response: {
+        text: () =>
+          JSON.stringify([
+            { title: 'Tip 1', description: 'd', estimatedSavingKg: -1.2, category: 'energy' },
+            { title: 'Tip 2', description: 'd', estimatedSavingKg: 1.1, category: 'energy' },
+            { title: 'Tip 3', description: 'd', estimatedSavingKg: 1.1, category: 'energy' },
+          ]),
+      },
+    });
+
+    const request = new NextRequest('http://localhost/api/insights', { method: 'POST' });
+    const response = await POST(request);
+
+    expect(response.status).toBe(500);
+    expect(prisma.aiInsight.create).not.toHaveBeenCalled();
+  });
+
   it('returns an empty tips payload when the user has no activity logs', async () => {
     const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-2' } }, error: null });
     (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });

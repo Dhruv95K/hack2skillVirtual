@@ -44,11 +44,18 @@ function normaliseTip(rawTip: unknown): AiTip | null {
   const title = typeof candidate.title === 'string' ? candidate.title.trim() : '';
   const description =
     typeof candidate.description === 'string' ? candidate.description.trim() : '';
-  const estimatedSavingKg = Number(candidate.estimatedSavingKg);
+  const estimatedSavingKg = candidate.estimatedSavingKg;
   const category =
     typeof candidate.category === 'string' ? candidate.category.trim().toLowerCase() : '';
 
-  if (!title || !description || !Number.isFinite(estimatedSavingKg) || !isValidCategory(category)) {
+  if (
+    !title ||
+    !description ||
+    typeof estimatedSavingKg !== 'number' ||
+    !Number.isFinite(estimatedSavingKg) ||
+    estimatedSavingKg <= 0 ||
+    !isValidCategory(category)
+  ) {
     return null;
   }
 
