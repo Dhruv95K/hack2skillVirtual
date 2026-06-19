@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      await updateStreak(user.id);
-      await checkAndAwardBadges(user.id);
+      const updatedUser = await updateStreak(user.id);
+      await checkAndAwardBadges(user.id, updatedUser);
     } catch (gamificationErr) {
       console.error('Gamification post-transaction error:', gamificationErr);
     }

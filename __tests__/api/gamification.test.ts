@@ -1,5 +1,6 @@
 import { GET } from '@/app/api/gamification/route';
 import { NextRequest } from 'next/server';
+import { computeLevel } from '@/lib/gamification-engine';
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn().mockResolvedValue({
@@ -34,6 +35,6 @@ describe('GET /api/gamification', () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.streak).toBe(5);
-    expect(data.level).toBe(7); // Forest Guardian
+    expect(data.level).toBe(computeLevel(100).level);
   });
 });

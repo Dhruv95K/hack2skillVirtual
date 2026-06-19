@@ -2,7 +2,7 @@ import { LEVEL_THRESHOLDS, BADGE_DEFINITIONS } from './gamification';
 import { prisma } from './prisma';
 
 export function computeLevel(co2Saved: number): { level: number; name: string } {
-  const thresholds = [...LEVEL_THRESHOLDS].reverse();
+  const thresholds = [...LEVEL_THRESHOLDS].sort((a, b) => b.minCO2Tracked - a.minCO2Tracked);
   const found = thresholds.find(t => co2Saved >= t.minCO2Tracked);
   return found ? { level: found.level, name: found.name } : { level: 1, name: 'Seedling' };
 }
@@ -25,20 +25,20 @@ export function shouldAwardBadge(badgeKey: string, ctx: BadgeContext): boolean {
 
 export async function updateStreak(userId: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) return;
-  const today = new Date(); today.setHours(0,0,0,0);
+  if (!user) return null;
+  const today = new Date(); today.setUTCHours(0,0,0,0);
   const lastLogged = user.lastLoggedAt ? new Date(user.lastLoggedAt) : null;
-  if (lastLogged) { lastLogged.setHours(0,0,0,0); }
+  if (lastLogged) { lastLogged.setUTCHours(0,0,0,0); }
   const daysDiff = lastLogged ? Math.floor((today.getTime() - lastLogged.getTime()) / 86400000) : null;
   let newStreak = user.streak;
   if (daysDiff === null || daysDiff > 1) newStreak = 1;        // first log or gap > 1 day
   else if (daysDiff === 1) newStreak = user.streak + 1;         // consecutive day
   // daysDiff === 0: same day, streak unchanged
-  await prisma.user.update({ where: { id: userId }, data: { streak: newStreak, lastLoggedAt: new Date() } });
+  return prisma.user.update({ where: { id: userId }, data: { streak: newStreak, lastLoggedAt: new Date() } });
 }
 
-export async function checkAndAwardBadges(userId: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+export async function checkAndAwardBadges(userId: string, userRecord?: any) {
+  const user = userRecord || await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return;
   const totalLogs = await prisma.activityLog.count({ where: { userId } });
   const transportLogs = await prisma.activityLog.count({ where: { userId, category: 'transport' } });
@@ -47,12 +47,18 @@ export async function checkAndAwardBadges(userId: string) {
   const ctx: BadgeContext = { totalLogs, streak: user.streak, transportLogs, plantLogs, energyLogs, co2Saved: user.totalCo2Tracked };
   const allBadges = await prisma.badge.findMany();
   const userBadgeIds = (await prisma.userBadge.findMany({ where: { userId }, select: { badgeId: true } })).map(b => b.badgeId);
-  for (const badge of allBadges) {
-    if (!userBadgeIds.includes(badge.id) && shouldAwardBadge(badge.key, ctx)) {
-      await prisma.userBadge.create({ data: { userId, badgeId: badge.id } });
-    }
+  
+  const badgesToAward = allBadges
+    .filter(badge => !userBadgeIds.includes(badge.id) && shouldAwardBadge(badge.key, ctx))
+    .map(badge => ({ userId, badgeId: badge.id }));
+    
+  if (badgesToAward.length > 0) {
+    await prisma.userBadge.createMany({ data: badgesToAward });
   }
+
   // Update level
   const { level } = computeLevel(user.totalCo2Tracked);
-  await prisma.user.update({ where: { id: userId }, data: { level } });
+  if (user.level !== level) {
+    await prisma.user.update({ where: { id: userId }, data: { level } });
+  }
 }

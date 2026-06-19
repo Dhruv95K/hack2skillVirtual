@@ -24,28 +24,46 @@ interface GamificationData {
 export default function GamificationPage() {
   const [data, setData] = useState<GamificationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = 'My Progress | EcoTrack';
     fetch('/api/gamification')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch data');
+        return res.json();
+      })
       .then(d => {
         setData(d);
         setLoading(false);
       })
       .catch(err => {
         console.error(err);
+        setError(err.message);
         setLoading(false);
       });
   }, []);
 
-  if (loading || !data) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <Loader2 className="animate-spin text-muted-foreground w-8 h-8" />
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center">
+          <p className="text-destructive font-semibold">Error loading progress</p>
+          <p className="text-muted-foreground text-sm">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
 
   const earnedBadgeIds = data.badges.earned.map(b => b.badgeId);
 

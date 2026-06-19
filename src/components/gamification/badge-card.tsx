@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Badge as BadgeType } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock, Footprints, Flame, Train, Salad, Zap, Trophy, LucideIcon } from 'lucide-react';
 
