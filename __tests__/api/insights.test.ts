@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { POST } from '@/app/api/insights/route';
+import { GET, POST } from '@/app/api/insights/route';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 
@@ -335,5 +335,134 @@ describe('/api/insights', () => {
     });
     expect(mockGenerateContent).not.toHaveBeenCalled();
     expect(prisma.aiInsight.create).not.toHaveBeenCalled();
+  });
+
+  describe('GET', () => {
+    it('returns 401 if user is not authenticated', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: null }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const request = new NextRequest('http://localhost/api/insights', { method: 'GET' });
+      const response = await GET(request);
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns saved insight with serialized generatedAt', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const mockDate = new Date('2026-06-19T10:00:00.000Z');
+      (prisma.aiInsight.findFirst as jest.Mock).mockResolvedValue({
+        id: 'insight-1',
+        userId: 'user-1',
+        content: JSON.stringify([
+          { title: 'Test Tip', description: 'Test desc', estimatedSavingKg: 1.5, category: 'energy' },
+        ]),
+        generatedAt: mockDate,
+      });
+
+      const request = new NextRequest('http://localhost/api/insights', { method: 'GET' });
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json).toEqual({
+        tips: [
+          { title: 'Test Tip', description: 'Test desc', estimatedSavingKg: 1.5, category: 'energy' },
+        ],
+        generatedAt: mockDate.toISOString(),
+      });
+      expect(prisma.aiInsight.findFirst).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+        orderBy: { generatedAt: 'desc' },
+      });
+    });
+
+    it('handles malformed persisted content by returning empty tips', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const mockDate = new Date('2026-06-19T10:00:00.000Z');
+      (prisma.aiInsight.findFirst as jest.Mock).mockResolvedValue({
+        id: 'insight-2',
+        userId: 'user-1',
+        content: 'not-valid-json',
+        generatedAt: mockDate,
+      });
+
+      const request = new NextRequest('http://localhost/api/insights', { method: 'GET' });
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.tips).toEqual([]);
+      expect(json.generatedAt).toBe(mockDate.toISOString());
+    });
+
+    it('handles partially malformed JSON array by returning valid tips and ignoring invalid ones', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const mockDate = new Date('2026-06-19T10:00:00.000Z');
+      (prisma.aiInsight.findFirst as jest.Mock).mockResolvedValue({
+        id: 'insight-3',
+        userId: 'user-1',
+        content: JSON.stringify([
+          { title: 'Valid Tip', description: 'Good', estimatedSavingKg: 2, category: 'food' },
+          { title: 'Invalid Tip' }, // missing fields
+          'not an object'
+        ]),
+        generatedAt: mockDate,
+      });
+
+      const request = new NextRequest('http://localhost/api/insights', { method: 'GET' });
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.tips).toEqual([
+        { title: 'Valid Tip', description: 'Good', estimatedSavingKg: 2, category: 'food' },
+      ]);
+      expect(json.generatedAt).toBe(mockDate.toISOString());
+    });
+
+    it('returns empty message if no insight exists and no logs exist', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      (prisma.aiInsight.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([]);
+
+      const request = new NextRequest('http://localhost/api/insights', { method: 'GET' });
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json).toEqual({
+        tips: [],
+        generatedAt: null,
+        message: 'Log some activities first to get personalized insights!',
+      });
+    });
+
+    it('returns prompt message if no insight exists but logs exist', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      (prisma.aiInsight.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([{ id: 'log-1' }]);
+
+      const request = new NextRequest('http://localhost/api/insights', { method: 'GET' });
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json).toEqual({
+        tips: [],
+        generatedAt: null,
+        message: 'Generate personalized tips from your latest activity logs.',
+      });
+    });
   });
 });

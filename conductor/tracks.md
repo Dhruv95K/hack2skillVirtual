@@ -1,4 +1,4 @@
-﻿# EcoTrack â€” Task Registry (tracks.md)
+# EcoTrack â€” Task Registry (tracks.md)
 
 Plan file: `docs/plans/2026-06-18-ecotrack.md`
 Last updated: 2026-06-19
@@ -18,13 +18,13 @@ Last updated: 2026-06-19
 | 1 | Project Scaffolding & Infrastructure | infra | `[x]` | 8cbf4fc |
 | 2 | Authentication (Signup / Login) | fullstack | `[x]` | 60ab4c7 |
 | 3 | Onboarding Quiz | fullstack | `[x]` | 0bf60b4 |
-| 4 | Activity Logging & COâ‚‚ Calculation Engine | fullstack | `[x]` | 7321c4f |
+| 4 | Activity Logging & CO₂ Calculation Engine | fullstack | `[x]` | 7321c4f |
 | 5 | Progress Dashboard with Charts | fullstack | `[x]` | b55ff3a |
 | 6 | AI-Powered Insights (Gemini API) | fullstack | `[x]` | 843d7fe |
-| 7 | Gamification (Streaks, Badges, Levels) | fullstack | `[ ]` | â€” |
-| 8 | Carbon Offset Suggestions Page | fullstack | `[ ]` | â€” |
-| 9 | Landing Page | frontend | `[ ]` | â€” |
-| 10 | Polish, Accessibility & Final E2E Validation | fullstack | `[ ]` | â€” |
+| 7 | Gamification (Streaks, Badges, Levels) | fullstack | `[/]` | — |
+| 8 | Carbon Offset Suggestions Page | fullstack | `[ ]` | — |
+| 9 | Landing Page | frontend | `[ ]` | — |
+| 10 | Polish, Accessibility & Final E2E Validation | fullstack | `[ ]` | — |
 
 ---
 

@@ -128,7 +128,13 @@ function buildUserSummary(logs: ActivityLogSummary[]) {
 }
 
 function parseSavedTips(content: string): AiTip[] {
-  const parsed = JSON.parse(content);
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    return [];
+  }
+
   if (!Array.isArray(parsed)) {
     return [];
   }
