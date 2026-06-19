@@ -110,4 +110,43 @@ describe('QuizStepper', () => {
       expect(mockPush).toHaveBeenCalledWith('/dashboard');
     });
   });
+
+  it('shows a visible submit error when the API rejects the quiz', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Quiz already completed' }),
+    });
+
+    render(<QuizStepper />);
+
+    await userEvent.selectOptions(screen.getByLabelText(/primary mode of daily transport/i), 'car_petrol');
+    await userEvent.type(screen.getByLabelText(/How many km do you travel per week/i), '100');
+    await userEvent.type(screen.getByLabelText(/How many flights do you take per year/i), '2');
+    await userEvent.click(screen.getByRole('button', { name: /Next/i }));
+
+    await userEvent.selectOptions(screen.getByLabelText(/How would you describe your diet/i), 'vegan');
+    await userEvent.type(screen.getByLabelText(/How many meat meals do you eat per week/i), '0');
+    await userEvent.click(screen.getByRole('button', { name: /Next/i }));
+
+    await userEvent.selectOptions(screen.getByLabelText(/What is your home size/i), '2bedroom');
+    await userEvent.type(screen.getByLabelText(/Estimated monthly electricity use/i), '200');
+    await userEvent.click(screen.getByRole('button', { name: /Submit/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Quiz already completed');
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('mirrors numeric bounds in the input attributes', () => {
+    render(<QuizStepper />);
+
+    const weeklyKmInput = screen.getByLabelText(/How many km do you travel per week/i);
+    const flightsInput = screen.getByLabelText(/How many flights do you take per year/i);
+
+    expect(weeklyKmInput).toHaveAttribute('min', '0');
+    expect(weeklyKmInput).toHaveAttribute('max', '5000');
+    expect(weeklyKmInput).toHaveAttribute('step', '1');
+    expect(flightsInput).toHaveAttribute('min', '0');
+    expect(flightsInput).toHaveAttribute('max', '100');
+    expect(flightsInput).toHaveAttribute('step', '1');
+  });
 });

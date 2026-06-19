@@ -11,9 +11,10 @@ import {
 
 export async function POST(request: NextRequest) {
   const requestId = crypto.randomUUID();
-  const isE2E = process.env.NODE_ENV !== 'production' && request.cookies.has('e2e-mock-auth');
+  const isE2EAuthBypassEnabled = process.env.E2E_AUTH_BYPASS_ENABLED === 'true';
+  const isE2E = isE2EAuthBypassEnabled && request.cookies.has('e2e-mock-auth');
   const isE2EQuizComplete =
-    process.env.NODE_ENV !== 'production' && request.cookies.has('e2e-quiz-complete');
+    isE2EAuthBypassEnabled && request.cookies.has('e2e-quiz-complete');
 
   try {
     if (isE2EQuizComplete) {

@@ -29,18 +29,21 @@ describe('POST /api/quiz', () => {
   let consoleInfoSpy: jest.SpyInstance;
   let consoleWarnSpy: jest.SpyInstance;
   let consoleErrorSpy: jest.SpyInstance;
+  const originalE2EAuthBypassEnabled = process.env.E2E_AUTH_BYPASS_ENABLED;
 
   beforeEach(() => {
     jest.clearAllMocks();
     consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => undefined);
     consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    process.env.E2E_AUTH_BYPASS_ENABLED = 'true';
   });
 
   afterEach(() => {
     consoleInfoSpy.mockRestore();
     consoleWarnSpy.mockRestore();
     consoleErrorSpy.mockRestore();
+    process.env.E2E_AUTH_BYPASS_ENABLED = originalE2EAuthBypassEnabled;
   });
 
   it('returns 401 if user is not authenticated', async () => {
@@ -161,6 +164,60 @@ describe('POST /api/quiz', () => {
     expect(response.status).toBe(422);
     expect(json.error).toBe('Invalid quiz response values');
     expect(calculateBaseline).not.toHaveBeenCalled();
+  });
+
+  it('returns 422 when an integer-only answer is fractional', async () => {
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+    (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+    (prisma.quizResponse.count as jest.Mock).mockResolvedValue(0);
+
+    const request = new NextRequest('http://localhost/api/quiz', {
+      method: 'POST',
+      body: JSON.stringify({
+        responses: {
+          primary_transport: 'car_petrol',
+          weekly_km: 100,
+          flights_per_year: 1.5,
+          diet_type: 'vegan',
+          meat_meals_per_week: 0,
+          home_size: '2bedroom',
+          monthly_electricity_kwh: 200,
+        },
+      }),
+    });
+
+    const response = await POST(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(json.error).toBe('Invalid quiz response values');
+  });
+
+  it('returns 422 when a numeric answer exceeds the realistic bounds', async () => {
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+    (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+    (prisma.quizResponse.count as jest.Mock).mockResolvedValue(0);
+
+    const request = new NextRequest('http://localhost/api/quiz', {
+      method: 'POST',
+      body: JSON.stringify({
+        responses: {
+          primary_transport: 'car_petrol',
+          weekly_km: 100,
+          flights_per_year: 1,
+          diet_type: 'vegan',
+          meat_meals_per_week: 22,
+          home_size: '2bedroom',
+          monthly_electricity_kwh: 200,
+        },
+      }),
+    });
+
+    const response = await POST(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(json.error).toBe('Invalid quiz response values');
   });
 
   it('returns 409 if a concurrent submission loses to the unique write constraint', async () => {

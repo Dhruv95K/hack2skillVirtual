@@ -73,6 +73,32 @@ describe('calculateBaseline', () => {
         meat_meals_per_week: 0,
         monthly_electricity_kwh: 200,
       })
-    ).toThrow('Invalid numeric quiz response');
+    ).toThrow('Invalid numeric quiz response for weekly_km');
+  });
+
+  it('throws when an integer-only numeric response is fractional', () => {
+    expect(() =>
+      calculateBaseline({
+        primary_transport: 'car_petrol',
+        weekly_km: 100,
+        flights_per_year: 1.5,
+        diet_type: 'vegan',
+        meat_meals_per_week: 0,
+        monthly_electricity_kwh: 200,
+      })
+    ).toThrow('Invalid numeric quiz response for flights_per_year');
+  });
+
+  it('throws when meat meals exceed the realistic weekly bound', () => {
+    expect(() =>
+      calculateBaseline({
+        primary_transport: 'car_petrol',
+        weekly_km: 100,
+        flights_per_year: 1,
+        diet_type: 'vegan',
+        meat_meals_per_week: 22,
+        monthly_electricity_kwh: 200,
+      })
+    ).toThrow('Invalid numeric quiz response for meat_meals_per_week');
   });
 });

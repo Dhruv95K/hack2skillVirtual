@@ -16,6 +16,9 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run dev',
+    env: {
+      E2E_AUTH_BYPASS_ENABLED: 'true',
+    },
     url: 'http://localhost:3000',
     reuseExistingServer: true,
   },

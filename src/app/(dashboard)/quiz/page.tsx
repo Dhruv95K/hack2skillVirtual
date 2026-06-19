@@ -33,9 +33,10 @@ const STEP_SUMMARY = [
 
 export default async function QuizPage() {
   const cookieStore = await cookies();
-  const isE2E = process.env.NODE_ENV !== 'production' && cookieStore.has('e2e-mock-auth');
+  const isE2EAuthBypassEnabled = process.env.E2E_AUTH_BYPASS_ENABLED === 'true';
+  const isE2E = isE2EAuthBypassEnabled && cookieStore.has('e2e-mock-auth');
   const isE2EQuizComplete =
-    process.env.NODE_ENV !== 'production' && cookieStore.has('e2e-quiz-complete');
+    isE2EAuthBypassEnabled && cookieStore.has('e2e-quiz-complete');
 
   if (isE2EQuizComplete) {
     redirect('/dashboard');

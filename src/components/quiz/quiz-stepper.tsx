@@ -13,16 +13,18 @@ export function QuizStepper() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const currentCategory = QUIZ_STEPS[currentStep].category;
   const questionsInStep = QUIZ_QUESTIONS.filter(q => q.category === currentCategory);
 
   const isStepComplete = questionsInStep.every(q => {
     const val = answers[q.key];
-    return val !== undefined && val !== '';
+    return isAnswerValidForQuestion(q, val);
   });
 
   const handleChange = (key: string, value: string | number) => {
+    setSubmitError('');
     setAnswers(prev => ({ ...prev, [key]: value }));
   };
 
@@ -41,15 +43,24 @@ export function QuizStepper() {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
+      setSubmitError('');
       const res = await fetch('/api/quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ responses: answers }),
       });
-      if (!res.ok) throw new Error('Failed to submit');
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error(
+          typeof payload?.error === 'string' ? payload.error : 'Unable to submit quiz right now.'
+        );
+      }
       router.push('/dashboard');
     } catch (error) {
       console.error(error);
+      setSubmitError(
+        error instanceof Error ? error.message : 'Unable to submit quiz right now.'
+      );
       setIsSubmitting(false);
     }
   };
@@ -91,7 +102,9 @@ export function QuizStepper() {
                 <input
                   id={q.key}
                   type="number"
-                  min="0"
+                  min={q.min}
+                  max={q.max}
+                  step={q.step}
                   value={(answers[q.key] as number) ?? ''}
                   onChange={(e) => handleChange(q.key, e.target.value ? Number(e.target.value) : '')}
                   className="w-full bg-slate-950 border border-slate-800 rounded-md py-2 px-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors pr-12"
@@ -107,6 +120,16 @@ export function QuizStepper() {
           </div>
         ))}
       </div>
+
+      {submitError ? (
+        <div
+          role="alert"
+          aria-live="polite"
+          className="mt-6 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+        >
+          {submitError}
+        </div>
+      ) : null}
 
       <div className="flex justify-between items-center mt-10 pt-6 border-t border-slate-800">
         <Button
@@ -146,4 +169,27 @@ export function QuizStepper() {
       </div>
     </div>
   );
+}
+
+function isAnswerValidForQuestion(
+  question: (typeof QUIZ_QUESTIONS)[number],
+  value: string | number | undefined
+) {
+  if (question.type === 'select') {
+    return typeof value === 'string' && question.options.includes(value);
+  }
+
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return false;
+  }
+
+  if (value < question.min || value > question.max) {
+    return false;
+  }
+
+  if (question.integerOnly && !Number.isInteger(value)) {
+    return false;
+  }
+
+  return true;
 }

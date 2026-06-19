@@ -1,14 +1,5 @@
 import { EMISSION_FACTORS } from './emission-factors';
-
-export interface QuizAnswers {
-  primary_transport: string;
-  weekly_km: number;
-  flights_per_year: number;
-  diet_type: string;
-  meat_meals_per_week: number;
-  home_size?: string;
-  monthly_electricity_kwh: number;
-}
+import { assertQuizNumberInRange, type QuizAnswers } from './quiz';
 
 export interface BaselineResult {
   transport: number;
@@ -18,10 +9,16 @@ export interface BaselineResult {
 }
 
 export function calculateBaseline(answers: QuizAnswers): BaselineResult {
-  const weeklyKm = assertFiniteQuizNumber(answers.weekly_km);
-  const flightsPerYear = assertFiniteQuizNumber(answers.flights_per_year);
-  const meatMealsPerWeek = assertFiniteQuizNumber(answers.meat_meals_per_week);
-  const monthlyElectricityKwh = assertFiniteQuizNumber(answers.monthly_electricity_kwh);
+  const weeklyKm = assertQuizNumberInRange('weekly_km', answers.weekly_km);
+  const flightsPerYear = assertQuizNumberInRange('flights_per_year', answers.flights_per_year);
+  const meatMealsPerWeek = assertQuizNumberInRange(
+    'meat_meals_per_week',
+    answers.meat_meals_per_week
+  );
+  const monthlyElectricityKwh = assertQuizNumberInRange(
+    'monthly_electricity_kwh',
+    answers.monthly_electricity_kwh
+  );
 
   const transportFactor = EMISSION_FACTORS.transport[
     answers.primary_transport as keyof typeof EMISSION_FACTORS.transport
@@ -52,12 +49,4 @@ export function calculateBaseline(answers: QuizAnswers): BaselineResult {
     energy: +energy.toFixed(2),
     total: +total.toFixed(2),
   };
-}
-
-function assertFiniteQuizNumber(value: number): number {
-  if (!Number.isFinite(value) || value < 0) {
-    throw new Error('Invalid numeric quiz response');
-  }
-
-  return value;
 }

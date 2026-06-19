@@ -1,6 +1,81 @@
-import type { QuizAnswers } from '@/lib/co2-calculator';
+export interface QuizAnswers {
+  primary_transport: string;
+  weekly_km: number;
+  flights_per_year: number;
+  diet_type: string;
+  meat_meals_per_week: number;
+  home_size?: string;
+  monthly_electricity_kwh: number;
+}
 
-export const QUIZ_QUESTIONS = [
+export type QuizNumericKey =
+  | 'weekly_km'
+  | 'flights_per_year'
+  | 'meat_meals_per_week'
+  | 'monthly_electricity_kwh';
+
+export type QuizSelectKey = 'primary_transport' | 'diet_type' | 'home_size';
+export type QuizResponseKey = keyof QuizParsedResponses;
+
+export type QuizNumericConstraint = {
+  integerOnly: boolean;
+  max: number;
+  min: number;
+  step: number;
+};
+
+export type QuizQuestion =
+  | {
+      key: QuizSelectKey;
+      category: 'transport' | 'food' | 'energy';
+      question: string;
+      type: 'select';
+      options: readonly string[];
+    }
+  | {
+      key: QuizNumericKey;
+      category: 'transport' | 'food' | 'energy';
+      question: string;
+      type: 'number';
+      unit: string;
+      min: number;
+      max: number;
+      step: number;
+      integerOnly: boolean;
+    };
+
+export type QuizParsedResponses = QuizAnswers & {
+  home_size: string;
+};
+
+export const QUIZ_NUMERIC_CONSTRAINTS: Record<QuizNumericKey, QuizNumericConstraint> = {
+  weekly_km: {
+    min: 0,
+    max: 5000,
+    step: 1,
+    integerOnly: true,
+  },
+  flights_per_year: {
+    min: 0,
+    max: 100,
+    step: 1,
+    integerOnly: true,
+  },
+  meat_meals_per_week: {
+    min: 0,
+    max: 21,
+    step: 1,
+    integerOnly: true,
+  },
+  monthly_electricity_kwh: {
+    min: 0,
+    max: 5000,
+    step: 1,
+    integerOnly: true,
+  },
+};
+
+export const QUIZ_QUESTIONS: readonly QuizQuestion[] = [
   {
     key: 'primary_transport',
     category: 'transport',
@@ -23,6 +98,7 @@ export const QUIZ_QUESTIONS = [
     question: 'How many km do you travel per week?',
     type: 'number',
     unit: 'km',
+    ...QUIZ_NUMERIC_CONSTRAINTS.weekly_km,
   },
   {
     key: 'flights_per_year',
@@ -30,6 +106,7 @@ export const QUIZ_QUESTIONS = [
     question: 'How many flights do you take per year?',
     type: 'number',
     unit: 'flights',
+    ...QUIZ_NUMERIC_CONSTRAINTS.flights_per_year,
   },
   {
     key: 'diet_type',
@@ -44,6 +121,7 @@ export const QUIZ_QUESTIONS = [
     question: 'How many meat meals do you eat per week?',
     type: 'number',
     unit: 'meals',
+    ...QUIZ_NUMERIC_CONSTRAINTS.meat_meals_per_week,
   },
   {
     key: 'home_size',
@@ -58,6 +136,7 @@ export const QUIZ_QUESTIONS = [
     question: 'Estimated monthly electricity use (kWh)?',
     type: 'number',
     unit: 'kWh',
+    ...QUIZ_NUMERIC_CONSTRAINTS.monthly_electricity_kwh,
   },
 ] as const;
 
@@ -75,25 +154,13 @@ export const QUIZ_REQUIRED_RESPONSE_KEYS = [
   'meat_meals_per_week',
   'home_size',
   'monthly_electricity_kwh',
-] as const;
+] as const satisfies readonly QuizResponseKey[];
 
 export const QUIZ_SELECT_OPTIONS = {
-  primary_transport: QUIZ_QUESTIONS[0].options,
-  diet_type: QUIZ_QUESTIONS[3].options,
-  home_size: QUIZ_QUESTIONS[5].options,
+  primary_transport: getSelectQuestion('primary_transport').options,
+  diet_type: getSelectQuestion('diet_type').options,
+  home_size: getSelectQuestion('home_size').options,
 } as const;
-
-export const QUIZ_NUMERIC_KEYS = [
-  'weekly_km',
-  'flights_per_year',
-  'meat_meals_per_week',
-  'monthly_electricity_kwh',
-] as const;
-
-export type QuizResponseKey = (typeof QUIZ_REQUIRED_RESPONSE_KEYS)[number];
-export type QuizParsedResponses = QuizAnswers & {
-  home_size: string;
-};
 
 export const QUIZ_QUESTION_CATEGORY_BY_KEY: Record<QuizResponseKey, string> = {
   primary_transport: 'transport',
@@ -119,54 +186,33 @@ export function parseQuizResponses(
   for (const key of QUIZ_REQUIRED_RESPONSE_KEYS) {
     const value = rawResponses[key];
 
-    if (typeof value === 'string') {
-      if (value.trim().length === 0) {
-        return { ok: false, reason: 'missing' };
-      }
-      continue;
-    }
-
-    if (typeof value === 'number') {
-      if (!Number.isFinite(value)) {
-        return { ok: false, reason: 'invalid' };
-      }
-      continue;
-    }
-
     if (value == null) {
       return { ok: false, reason: 'missing' };
     }
 
-    return { ok: false, reason: 'invalid' };
+    if (typeof value === 'string' && value.trim().length === 0) {
+      return { ok: false, reason: 'missing' };
+    }
   }
 
-  const primaryTransport = rawResponses.primary_transport;
-  const dietType = rawResponses.diet_type;
-  const homeSize = rawResponses.home_size;
+  const primaryTransport = parseSelectAnswer('primary_transport', rawResponses.primary_transport);
+  const dietType = parseSelectAnswer('diet_type', rawResponses.diet_type);
+  const homeSize = parseSelectAnswer('home_size', rawResponses.home_size);
+  const weeklyKm = parseQuizNumber('weekly_km', rawResponses.weekly_km);
+  const flightsPerYear = parseQuizNumber('flights_per_year', rawResponses.flights_per_year);
+  const meatMealsPerWeek = parseQuizNumber(
+    'meat_meals_per_week',
+    rawResponses.meat_meals_per_week
+  );
+  const monthlyElectricityKwh = parseQuizNumber(
+    'monthly_electricity_kwh',
+    rawResponses.monthly_electricity_kwh
+  );
 
   if (
-    typeof primaryTransport !== 'string' ||
-    !QUIZ_SELECT_OPTIONS.primary_transport.includes(
-      primaryTransport as (typeof QUIZ_SELECT_OPTIONS.primary_transport)[number]
-    ) ||
-    typeof dietType !== 'string' ||
-    !QUIZ_SELECT_OPTIONS.diet_type.includes(
-      dietType as (typeof QUIZ_SELECT_OPTIONS.diet_type)[number]
-    ) ||
-    typeof homeSize !== 'string' ||
-    !QUIZ_SELECT_OPTIONS.home_size.includes(
-      homeSize as (typeof QUIZ_SELECT_OPTIONS.home_size)[number]
-    )
-  ) {
-    return { ok: false, reason: 'invalid' };
-  }
-
-  const weeklyKm = parseQuizNumber(rawResponses.weekly_km);
-  const flightsPerYear = parseQuizNumber(rawResponses.flights_per_year);
-  const meatMealsPerWeek = parseQuizNumber(rawResponses.meat_meals_per_week);
-  const monthlyElectricityKwh = parseQuizNumber(rawResponses.monthly_electricity_kwh);
-
-  if (
+    primaryTransport === null ||
+    dietType === null ||
+    homeSize === null ||
     weeklyKm === null ||
     flightsPerYear === null ||
     meatMealsPerWeek === null ||
@@ -189,13 +235,42 @@ export function parseQuizResponses(
   };
 }
 
-function parseQuizNumber(value: unknown): number | null {
-  const normalized =
-    typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : Number.NaN;
+export function assertQuizNumberInRange(key: QuizNumericKey, value: number): number {
+  const constraints = QUIZ_NUMERIC_CONSTRAINTS[key];
 
-  if (!Number.isFinite(normalized) || normalized < 0) {
+  if (!Number.isFinite(value) || value < constraints.min || value > constraints.max) {
+    throw new Error(`Invalid numeric quiz response for ${key}`);
+  }
+
+  if (constraints.integerOnly && !Number.isInteger(value)) {
+    throw new Error(`Invalid numeric quiz response for ${key}`);
+  }
+
+  return value;
+}
+
+function getSelectQuestion(key: QuizSelectKey) {
+  return QUIZ_QUESTIONS.find(
+    (question): question is Extract<QuizQuestion, { key: QuizSelectKey; type: 'select' }> =>
+      question.key === key && question.type === 'select'
+  )!;
+}
+
+function parseSelectAnswer(key: QuizSelectKey, value: unknown): string | null {
+  if (typeof value !== 'string') {
     return null;
   }
 
-  return normalized;
+  return QUIZ_SELECT_OPTIONS[key].includes(value) ? value : null;
+}
+
+function parseQuizNumber(key: QuizNumericKey, value: unknown): number | null {
+  const normalized =
+    typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : Number.NaN;
+
+  try {
+    return assertQuizNumberInRange(key, normalized);
+  } catch {
+    return null;
+  }
 }
