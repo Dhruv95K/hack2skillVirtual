@@ -2,6 +2,7 @@ import { GET } from '@/app/api/gamification/route';
 import { NextRequest } from 'next/server';
 import { computeLevel } from '@/lib/gamification-engine';
 import { prisma } from '@/lib/prisma';
+import { createClient } from '@/lib/supabase/server';
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn().mockResolvedValue({
@@ -61,5 +62,30 @@ describe('GET /api/gamification', () => {
     const req = new NextRequest('http://localhost:3000/api/gamification');
     const res = await GET(req);
     expect(res.status).toBe(500);
+  });
+
+  it('returns 401 if user is not authenticated', async () => {
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: null }, error: null });
+    (createClient as jest.Mock).mockResolvedValueOnce({ auth: { getUser: mockGetUser } });
+    const req = new NextRequest('http://localhost:3000/api/gamification');
+    const res = await GET(req);
+    expect(res.status).toBe(401);
+  });
+
+  it('handles max level where next level is undefined', async () => {
+    // Max level threshold is 500. So 1000 means level 10 (max)
+    (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: 'test-user-max',
+      streak: 5,
+      totalCo2Tracked: 1000,
+      userBadges: []
+    });
+    const req = new NextRequest('http://localhost:3000/api/gamification');
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.level).toBe(10);
+    expect(data.nextLevelName).toBeNull();
+    expect(data.nextLevelThreshold).toBeNull();
   });
 });
