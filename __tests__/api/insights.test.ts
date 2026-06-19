@@ -34,13 +34,16 @@ jest.mock('@google/generative-ai', () => ({
 
 describe('/api/insights', () => {
   let consoleInfoSpy: jest.SpyInstance;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeAll(() => {
     consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => undefined);
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
   afterAll(() => {
     consoleInfoSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   beforeEach(() => {
