@@ -113,5 +113,45 @@ describe('/api/dashboard', () => {
       const json = await response.json();
       expect(json.error).toBe('Internal Server Error');
     });
+
+    it('handles edge case fallback branches in dashboard data calculation', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      // totalCo2Tracked = -1 to miss all thresholds and hit levelName fallback
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        streak: 5,
+        level: 2,
+        totalCo2Tracked: -1
+      });
+
+      // Include a non-core category to skip, and a core category with null sum
+      (prisma.activityLog.groupBy as jest.Mock).mockResolvedValue([
+        { _sum: { co2Kg: null }, category: 'transport' },
+        { _sum: { co2Kg: 10 }, category: 'unknown_category' }
+      ]);
+
+      // Include an old log outside the trend map dates
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 60);
+      (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([
+        { co2Kg: 5, loggedAt: oldDate }
+      ]);
+
+      // Today aggregate returns null
+      (prisma.activityLog.aggregate as jest.Mock).mockResolvedValue({
+        _sum: { co2Kg: null }
+      });
+
+      const request = new NextRequest('http://localhost/api/dashboard', { method: 'GET' });
+      const response = await GET(request);
+      
+      expect(response.status).toBe(200);
+      const json = await response.json();
+      
+      expect(json.summary.levelName).toBe('Seedling');
+      expect(json.summary.todayCo2).toBe(0);
+      expect(json.categories.transport).toBe(0); // fell back from null
+    });
   });
 });
