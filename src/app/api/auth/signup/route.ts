@@ -14,6 +14,14 @@ export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  // Auto-confirm the user so they can log in immediately
+  await supabaseAdmin.auth.admin.updateUserById(data.user!.id, { email_confirm: true });
   
   // Create user record in our DB
   try {

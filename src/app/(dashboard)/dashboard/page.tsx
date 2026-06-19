@@ -1,62 +1,147 @@
-import type { Metadata } from 'next';
-import { BarChart3, Leaf, Sparkles } from 'lucide-react';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Dashboard | EcoTrack',
-  description: 'Your personal carbon footprint dashboard.',
-};
-
-const QUICK_ITEMS = [
-  {
-    icon: Leaf,
-    title: 'Baseline saved',
-    description: 'Your onboarding answers are ready to power future recommendations.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Tracking hub',
-    description: 'This route is ready for the full dashboard slice to build on top of it.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Next up',
-    description: 'Activity logging, charts, and insights can now safely target /dashboard.',
-  },
-] as const;
+import { useEffect, useState } from 'react';
+import { Co2TrendChart } from '@/components/charts/co2-trend-chart';
+import { CategoryDonutChart } from '@/components/charts/category-donut-chart';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Trophy, Flame, Leaf } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function DashboardPage() {
-  return (
-    <main className="min-h-screen bg-background px-4 py-10 md:px-6 md:py-14">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <section className="space-y-3">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-accent/80">
-            EcoTrack
-          </p>
-          <h1 className="font-heading text-3xl font-semibold text-white md:text-4xl">
-            Dashboard
-          </h1>
-          <p className="max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
-            Your onboarding flow is complete. This placeholder keeps authenticated
-            redirects and quiz verification grounded until the dedicated dashboard slice
-            replaces it.
-          </p>
-        </section>
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const shouldReduceMotion = useReducedMotion();
 
-        <section className="grid gap-4 md:grid-cols-3">
-          {QUICK_ITEMS.map(({ icon: Icon, title, description }) => (
-            <article
-              key={title}
-              className="rounded-xl border border-white/10 bg-surface/70 px-4 py-5 backdrop-blur-sm"
-            >
-              <div className="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-accent/10 text-accent">
-                <Icon className="size-5" />
-              </div>
-              <h2 className="text-sm font-semibold text-white">{title}</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-400">{description}</p>
-            </article>
-          ))}
-        </section>
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const res = await fetch('/api/dashboard');
+        if (res.ok) {
+          const json = await res.json();
+          setData(json);
+        }
+      } catch (e) {
+        console.error('Failed to fetch dashboard data', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDashboardData();
+  }, []);
+
+  const containerVariants = shouldReduceMotion
+    ? { hidden: {}, visible: {} }
+    : { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+
+  const itemVariants = shouldReduceMotion
+    ? { hidden: {}, visible: {} }
+    : { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-3xl font-heading font-bold text-white mb-2">Dashboard</h1>
+        <p className="text-muted-foreground">Welcome back! Here's how you're doing.</p>
       </div>
-    </main>
+
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+      >
+        <motion.div variants={itemVariants}>
+          <Card className="bg-surface border-surface-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total CO₂ Tracked</CardTitle>
+              <Leaf className="w-4 h-4 text-accent" />
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="h-8 w-24 bg-surface-2 animate-pulse rounded-md" />
+              ) : (
+                <div className="text-2xl font-heading font-bold text-white">
+                  {data?.summary.totalCo2Tracked.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">kg</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Card className="bg-surface border-surface-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Current Streak</CardTitle>
+              <Flame className="w-4 h-4 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="h-8 w-16 bg-surface-2 animate-pulse rounded-md" />
+              ) : (
+                <div className="text-2xl font-heading font-bold text-white">
+                  {data?.summary.streak} <span className="text-sm font-normal text-muted-foreground">days</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Card className="bg-surface border-surface-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Current Level</CardTitle>
+              <Trophy className="w-4 h-4 text-yellow-500" />
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="h-8 w-32 bg-surface-2 animate-pulse rounded-md" />
+              ) : (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-heading font-bold text-white">Lvl {data?.summary.level}</span>
+                  <span className="text-sm text-muted-foreground">{data?.summary.levelName}</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div 
+          initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
+          animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="lg:col-span-2"
+        >
+          <Card className="bg-surface border-surface-2 h-full">
+            <CardHeader>
+              <CardTitle className="text-lg text-white">30-Day Trend</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Co2TrendChart data={data?.trend || []} loading={loading} />
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div 
+          initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
+          animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="lg:col-span-1"
+        >
+          <Card className="bg-surface border-surface-2 h-full">
+            <CardHeader>
+              <CardTitle className="text-lg text-white">All-Time Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CategoryDonutChart 
+                data={data?.categories || { transport: 0, food: 0, energy: 0 }} 
+                loading={loading} 
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
   );
 }
