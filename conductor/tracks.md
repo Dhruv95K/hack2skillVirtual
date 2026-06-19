@@ -21,8 +21,8 @@ Last updated: 2026-06-19
 | 4 | Activity Logging & CO₂ Calculation Engine | fullstack | `[x]` | 7321c4f |
 | 5 | Progress Dashboard with Charts | fullstack | `[x]` | b55ff3a |
 | 6 | AI-Powered Insights (Gemini API) | fullstack | `[x]` | 843d7fe |
-| 7 | Gamification (Streaks, Badges, Levels) | fullstack | `[/]` | — |
-| 8 | Carbon Offset Suggestions Page | fullstack | `[ ]` | — |
+| 7 | Gamification (Streaks, Badges, Levels) | fullstack | `[x]` | 54738ac |
+| 8 | Carbon Offset Suggestions Page | fullstack | `[/]` | — |
 | 9 | Landing Page | frontend | `[ ]` | — |
 | 10 | Polish, Accessibility & Final E2E Validation | fullstack | `[ ]` | — |
 
