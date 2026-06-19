@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Leaf, Menu } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription, SheetClose } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
@@ -34,12 +34,12 @@ export function Navbar() {
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <SheetDescription className="sr-only">Main navigation links for the application.</SheetDescription>
               <div className="flex flex-col gap-6 mt-8">
-                <Link href="#features" className="text-lg font-medium text-foreground hover:text-[#22C55E] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm">
+                <SheetClose render={<Link href="#features" className="text-lg font-medium text-foreground hover:text-[#22C55E] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm" />}>
                   Features
-                </Link>
-                <Link href="/signup" className={cn(buttonVariants({ variant: "default" }), "bg-[#22C55E] hover:bg-[#16A34A] text-white rounded-full w-full font-medium")}>
+                </SheetClose>
+                <SheetClose render={<Link href="/signup" className={cn(buttonVariants({ variant: "default" }), "bg-[#22C55E] hover:bg-[#16A34A] text-white rounded-full w-full font-medium")} />}>
                   Get Started
-                </Link>
+                </SheetClose>
               </div>
             </SheetContent>
           </Sheet>

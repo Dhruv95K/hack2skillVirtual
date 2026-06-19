@@ -81,11 +81,11 @@ export function Hero() {
           </div>
           <div className="flex flex-col items-center">
             <span className="text-3xl font-bold text-foreground font-[family-name:var(--font-fira-code)]">10k+</span>
-            <span className="text-sm text-muted-foreground mt-1">Activities logged</span>
+            <span className="text-sm text-muted-foreground mt-1">activities logged</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-3xl font-bold text-[#22C55E] font-[family-name:var(--font-fira-code)]">1000+ kg</span>
-            <span className="text-sm text-muted-foreground mt-1">CO₂ saved</span>
+            <span className="text-3xl font-bold text-[#22C55E] font-[family-name:var(--font-fira-code)]">1000+</span>
+            <span className="text-sm text-muted-foreground mt-1">kg CO₂ saved</span>
           </div>
         </motion.div>
       </div>
