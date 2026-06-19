@@ -34,6 +34,7 @@ model QuizResponse {
   createdAt   DateTime @default(now()) @map("created_at")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, questionKey])
   @@map("quiz_responses")
 }
 

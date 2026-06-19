@@ -1,50 +1,49 @@
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { calculateBaseline } from '@/lib/co2-calculator';
-
-const REQUIRED_RESPONSE_KEYS = [
-  'primary_transport',
-  'weekly_km',
-  'flights_per_year',
-  'diet_type',
-  'meat_meals_per_week',
-  'home_size',
-  'monthly_electricity_kwh',
-] as const;
-
-const QUESTION_CATEGORY_BY_KEY: Record<(typeof REQUIRED_RESPONSE_KEYS)[number], string> = {
-  primary_transport: 'transport',
-  weekly_km: 'transport',
-  flights_per_year: 'transport',
-  diet_type: 'food',
-  meat_meals_per_week: 'food',
-  home_size: 'energy',
-  monthly_electricity_kwh: 'energy',
-};
+import {
+  parseQuizResponses,
+  QUIZ_QUESTION_CATEGORY_BY_KEY,
+  QUIZ_REQUIRED_RESPONSE_KEYS,
+} from '@/lib/quiz';
 
 export async function POST(request: NextRequest) {
   const requestId = crypto.randomUUID();
+  const isE2E = process.env.NODE_ENV !== 'production' && request.cookies.has('e2e-mock-auth');
+  const isE2EQuizComplete =
+    process.env.NODE_ENV !== 'production' && request.cookies.has('e2e-quiz-complete');
 
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    if (isE2EQuizComplete) {
+      return jsonWithRequestId({ error: 'Quiz already completed' }, 409, requestId);
+    }
 
-    if (!user) {
-      return jsonWithRequestId({ error: 'Unauthorized' }, 401, requestId);
+    let userId = 'e2e-user';
+
+    if (!isE2E) {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        return jsonWithRequestId({ error: 'Unauthorized' }, 401, requestId);
+      }
+
+      userId = user.id;
     }
 
     const body = await request.json().catch(() => null);
-    const responses = body?.responses;
+    const parsedResponses = parseQuizResponses(body?.responses);
 
-    if (!hasRequiredResponses(responses)) {
+    if (!parsedResponses.ok && parsedResponses.reason === 'missing') {
       console.warn('[quiz] rejected incomplete submission', {
         requestId,
         providedKeys:
-          responses && typeof responses === 'object'
-            ? Object.keys(responses as Record<string, unknown>)
+          body?.responses && typeof body.responses === 'object'
+            ? Object.keys(body.responses as Record<string, unknown>)
             : [],
       });
       return jsonWithRequestId(
@@ -54,49 +53,55 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingResponsesCount = await prisma.quizResponse.count({
-      where: { userId: user.id },
-    });
+    if (!parsedResponses.ok) {
+      console.warn('[quiz] rejected invalid submission', { requestId });
+      return jsonWithRequestId({ error: 'Invalid quiz response values' }, 422, requestId);
+    }
+
+    const existingResponsesCount = isE2E
+      ? 0
+      : await prisma.quizResponse.count({
+          where: { userId },
+        });
 
     if (existingResponsesCount > 0) {
       console.info('[quiz] duplicate submission ignored', { requestId });
       return jsonWithRequestId({ error: 'Quiz already completed' }, 409, requestId);
     }
 
-    const normalizedResponses = {
-      primary_transport: String(responses.primary_transport),
-      weekly_km: Number(responses.weekly_km),
-      flights_per_year: Number(responses.flights_per_year),
-      diet_type: String(responses.diet_type),
-      meat_meals_per_week: Number(responses.meat_meals_per_week),
-      home_size: String(responses.home_size),
-      monthly_electricity_kwh: Number(responses.monthly_electricity_kwh),
-    };
+    const baseline = calculateBaseline(parsedResponses.data);
 
-    const baseline = calculateBaseline(normalizedResponses);
+    if (!isE2E) {
+      await prisma.$transaction(async (tx) => {
+        await tx.quizResponse.createMany({
+          data: QUIZ_REQUIRED_RESPONSE_KEYS.map((key) => ({
+            userId,
+            category: QUIZ_QUESTION_CATEGORY_BY_KEY[key],
+            questionKey: key,
+            answer: String(parsedResponses.data[key]),
+          })),
+        });
 
-    await prisma.quizResponse.createMany({
-      data: REQUIRED_RESPONSE_KEYS.map((key) => ({
-        userId: user.id,
-        category: QUESTION_CATEGORY_BY_KEY[key],
-        questionKey: key,
-        answer: String(normalizedResponses[key]),
-      })),
-    });
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { totalCo2Saved: 0 },
-    });
+        await tx.user.update({
+          where: { id: userId },
+          data: { totalCo2Saved: 0 },
+        });
+      });
+    }
 
     console.info('[quiz] baseline saved', {
       requestId,
-      questionCount: REQUIRED_RESPONSE_KEYS.length,
+      questionCount: QUIZ_REQUIRED_RESPONSE_KEYS.length,
       baselineTotalKg: baseline.total,
     });
 
-    return jsonWithRequestId({ success: true, baseline }, 200, requestId);
+    return jsonWithRequestId({ success: true, baseline }, 200, requestId, isE2E);
   } catch (error) {
+    if (isQuizAlreadyCompletedError(error)) {
+      console.info('[quiz] duplicate submission lost write race', { requestId });
+      return jsonWithRequestId({ error: 'Quiz already completed' }, 409, requestId);
+    }
+
     console.error('[quiz] submission failed', {
       requestId,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -105,29 +110,37 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function hasRequiredResponses(
-  responses: unknown
-): responses is Record<(typeof REQUIRED_RESPONSE_KEYS)[number], string | number> {
-  if (!responses || typeof responses !== 'object') {
-    return false;
-  }
-
-  return REQUIRED_RESPONSE_KEYS.every((key) => {
-    const value = (responses as Record<string, unknown>)[key];
-
-    if (typeof value === 'number') {
-      return Number.isFinite(value) && value >= 0;
-    }
-
-    return typeof value === 'string' && value.trim().length > 0;
-  });
-}
-
-function jsonWithRequestId(body: Record<string, unknown>, status: number, requestId: string) {
-  return NextResponse.json(body, {
+function jsonWithRequestId(
+  body: Record<string, unknown>,
+  status: number,
+  requestId: string,
+  markE2EComplete = false
+) {
+  const response = NextResponse.json(body, {
     status,
     headers: {
       'x-request-id': requestId,
     },
   });
+
+  if (markE2EComplete) {
+    response.cookies.set('e2e-quiz-complete', 'true', {
+      httpOnly: false,
+      path: '/',
+      sameSite: 'lax',
+    });
+  }
+
+  return response;
+}
+
+function isQuizAlreadyCompletedError(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError
+      ? error.code === 'P2002'
+      : typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 'P2002'
+  );
 }

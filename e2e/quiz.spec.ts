@@ -15,30 +15,8 @@ const quizCompleteCookie = {
 };
 
 test.describe('Onboarding quiz', () => {
-  test.beforeEach(async ({ context, page }) => {
+  test.beforeEach(async ({ context }) => {
     await context.addCookies([authCookie]);
-
-    await page.route('**/api/quiz', async (route) => {
-      if (route.request().method() !== 'POST') {
-        await route.continue();
-        return;
-      }
-
-      await context.addCookies([quizCompleteCookie]);
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          baseline: {
-            transport: 1778.4,
-            food: 982.8,
-            energy: 1968,
-            total: 4729.2,
-          },
-        }),
-      });
-    });
   });
 
   test('signed-in user can complete all 3 quiz steps and reach dashboard', async ({ page }) => {

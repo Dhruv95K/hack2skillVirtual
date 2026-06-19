@@ -4,25 +4,9 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { QUIZ_QUESTIONS, QUIZ_STEPS } from '@/lib/quiz';
 
-export const QUIZ_QUESTIONS = [
-  // Transport (category: 'transport')
-  { key: 'primary_transport', category: 'transport', question: 'What is your primary mode of daily transport?', type: 'select', options: ['car_petrol','car_diesel','car_electric','bus','train','motorcycle','bicycle','walking'] },
-  { key: 'weekly_km', category: 'transport', question: 'How many km do you travel per week?', type: 'number', unit: 'km' },
-  { key: 'flights_per_year', category: 'transport', question: 'How many flights do you take per year?', type: 'number', unit: 'flights' },
-  // Food (category: 'food')
-  { key: 'diet_type', category: 'food', question: 'How would you describe your diet?', type: 'select', options: ['vegan','vegetarian','pescatarian','meat_moderate','meat_heavy'] },
-  { key: 'meat_meals_per_week', category: 'food', question: 'How many meat meals do you eat per week?', type: 'number', unit: 'meals' },
-  // Energy (category: 'energy')
-  { key: 'home_size', category: 'energy', question: 'What is your home size?', type: 'select', options: ['studio','1bedroom','2bedroom','3bedroom','4plus'] },
-  { key: 'monthly_electricity_kwh', category: 'energy', question: 'Estimated monthly electricity use (kWh)?', type: 'number', unit: 'kWh' },
-];
-
-const STEPS = [
-  { title: 'Transport', category: 'transport' },
-  { title: 'Food', category: 'food' },
-  { title: 'Energy', category: 'energy' },
-];
+export { QUIZ_QUESTIONS } from '@/lib/quiz';
 
 export function QuizStepper() {
   const router = useRouter();
@@ -30,7 +14,7 @@ export function QuizStepper() {
   const [answers, setAnswers] = useState<Record<string, string | number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const currentCategory = STEPS[currentStep].category;
+  const currentCategory = QUIZ_STEPS[currentStep].category;
   const questionsInStep = QUIZ_QUESTIONS.filter(q => q.category === currentCategory);
 
   const isStepComplete = questionsInStep.every(q => {
@@ -43,7 +27,7 @@ export function QuizStepper() {
   };
 
   const handleNext = () => {
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < QUIZ_STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
     }
   };
@@ -70,14 +54,14 @@ export function QuizStepper() {
     }
   };
 
-  const progressPercentage = ((currentStep + 1) / STEPS.length) * 100;
+  const progressPercentage = ((currentStep + 1) / QUIZ_STEPS.length) * 100;
 
   return (
     <div className="w-full max-w-xl mx-auto bg-slate-900/50 p-6 md:p-8 rounded-xl border border-slate-800 shadow-xl backdrop-blur-sm">
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4 text-sm font-medium text-slate-300">
-          <span>{STEPS[currentStep].title}</span>
-          <span>Step {currentStep + 1} of {STEPS.length}</span>
+          <span>{QUIZ_STEPS[currentStep].title}</span>
+          <span>Step {currentStep + 1} of {QUIZ_STEPS.length}</span>
         </div>
         <Progress value={progressPercentage} className="h-2 bg-slate-800" />
       </div>
@@ -134,7 +118,7 @@ export function QuizStepper() {
           Previous
         </Button>
         
-        {currentStep === STEPS.length - 1 ? (
+        {currentStep === QUIZ_STEPS.length - 1 ? (
           <Button 
             onClick={handleSubmit} 
             disabled={!isStepComplete || isSubmitting}

@@ -49,4 +49,30 @@ describe('calculateBaseline', () => {
     });
     expect(meat.food).toBeGreaterThan(vegan.food);
   });
+
+  it('throws when the transport mode is not supported', () => {
+    expect(() =>
+      calculateBaseline({
+        primary_transport: 'spaceship',
+        weekly_km: 100,
+        flights_per_year: 0,
+        diet_type: 'vegan',
+        meat_meals_per_week: 0,
+        monthly_electricity_kwh: 200,
+      })
+    ).toThrow('Unsupported transport type');
+  });
+
+  it('throws when a numeric response is not finite', () => {
+    expect(() =>
+      calculateBaseline({
+        primary_transport: 'car_petrol',
+        weekly_km: Number.NaN,
+        flights_per_year: 0,
+        diet_type: 'vegan',
+        meat_meals_per_week: 0,
+        monthly_electricity_kwh: 200,
+      })
+    ).toThrow('Invalid numeric quiz response');
+  });
 });
