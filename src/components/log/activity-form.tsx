@@ -12,14 +12,15 @@ import { Train, Salad, Zap, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function ActivityForm({ onSuccess }: { onSuccess?: () => void }) {
-  const [category, setCategory] = useState<string>('transport');
+  const [category, setCategory] = useState<'transport' | 'food' | 'energy'>('transport');
   const [subType, setSubType] = useState<string>(ACTIVITY_SUB_TYPES.transport[0]);
   const [quantity, setQuantity] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
   const handleCategoryChange = (val: string) => {
-    setCategory(val);
-    setSubType(ACTIVITY_SUB_TYPES[val as keyof typeof ACTIVITY_SUB_TYPES][0]);
+    const newCategory = val as 'transport' | 'food' | 'energy';
+    setCategory(newCategory);
+    setSubType(ACTIVITY_SUB_TYPES[newCategory][0]);
     setQuantity('');
   };
 
@@ -27,7 +28,8 @@ export function ActivityForm({ onSuccess }: { onSuccess?: () => void }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!quantity || isNaN(Number(quantity))) return;
+    const qtyNum = Number(quantity);
+    if (!quantity || isNaN(qtyNum) || qtyNum <= 0) return;
 
     setLoading(true);
     try {

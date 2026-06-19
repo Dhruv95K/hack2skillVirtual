@@ -27,6 +27,7 @@ const CategoryIcon = ({ category }: { category: string }) => {
 export default function LogActivityPage() {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   const fetchLogs = useCallback(async () => {
     try {
@@ -43,8 +44,11 @@ export default function LogActivityPage() {
   }, []);
 
   useEffect(() => {
+    setIsMounted(true);
     fetchLogs();
   }, [fetchLogs]);
+
+  if (!isMounted) return null;
 
   return (
     <div className="container mx-auto py-8 max-w-4xl space-y-8">
@@ -87,9 +91,11 @@ export default function LogActivityPage() {
                           month: 'short', day: 'numeric', year: 'numeric'
                         })}
                       </td>
-                      <td className="px-4 py-3 capitalize flex items-center gap-2">
-                        <CategoryIcon category={log.category} />
-                        {log.category}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2 capitalize">
+                          <CategoryIcon category={log.category} />
+                          {log.category}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         {log.subType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}

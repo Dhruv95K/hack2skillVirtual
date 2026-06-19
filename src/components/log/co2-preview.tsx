@@ -1,3 +1,5 @@
+'use client';
+
 import { calculateActivityCO2 } from '@/lib/co2-calculator';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
