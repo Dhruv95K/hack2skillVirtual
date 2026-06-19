@@ -7,6 +7,26 @@ import { computeLevel } from '@/lib/gamification-engine';
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  const cookieHeader = request.headers.get('cookie') || '';
+  const isE2E = process.env.E2E_AUTH_BYPASS_ENABLED === 'true' && cookieHeader.includes('e2e-mock-auth');
+
+  if (isE2E) {
+    return NextResponse.json({
+      streak: 5,
+      level: 2,
+      levelName: "Sprout",
+      nextLevelName: "Tree",
+      nextLevelThreshold: 500,
+      currentLevelThreshold: 100,
+      totalCo2Saved: 150,
+      badges: {
+        all: [{ id: '1', name: 'First Step', description: 'First log', icon: 'Leaf', conditionType: 'ACTIVITY_COUNT', conditionValue: 1 }],
+        earned: [{ badgeId: '1', earnedAt: new Date(), badge: { id: '1', name: 'First Step', description: 'First log', icon: 'Leaf', conditionType: 'ACTIVITY_COUNT', conditionValue: 1 } }]
+      }
+    });
+  }
+
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {

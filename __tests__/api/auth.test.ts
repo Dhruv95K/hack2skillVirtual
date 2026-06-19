@@ -26,7 +26,8 @@ describe('Auth API Routes', () => {
     it('returns 201 with valid body', async () => {
       const validUuid = '123e4567-e89b-12d3-a456-426614174000';
       const mockSignUp = jest.fn().mockResolvedValue({ data: { user: { id: validUuid } }, error: null });
-      (createClient as jest.Mock).mockResolvedValue({ auth: { signUp: mockSignUp } });
+      const mockSignInWithPassword = jest.fn().mockResolvedValue({ data: { user: { id: validUuid } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { signUp: mockSignUp, signInWithPassword: mockSignInWithPassword } });
       (prisma.user.create as jest.Mock).mockResolvedValue({ id: validUuid, email: 'test@example.com', name: 'Test User' });
 
       const request = new NextRequest('http://localhost/api/auth/signup', {

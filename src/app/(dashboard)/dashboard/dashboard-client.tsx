@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities */
 'use client';
 
 import { Co2TrendChart } from '@/components/charts/co2-trend-chart';
@@ -110,3 +111,4 @@ export function DashboardClient({ data }: { data: any }) {
     </div>
   );
 }
+

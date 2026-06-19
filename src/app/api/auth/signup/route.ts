@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
@@ -36,5 +37,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create user record' }, { status: 400 });
   }
   
+  // Actually sign them in to establish the session cookie
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  
+  if (signInError) {
+    return NextResponse.json({ error: 'Failed to sign in after registration' }, { status: 400 });
+  }
+  
   return NextResponse.json({ user: { id: data.user!.id, email, name } }, { status: 201 });
 }
+

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, type Variants } from 'framer-motion';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { Car, Utensils, Zap } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -54,9 +54,10 @@ export function InsightCard({
 }: AiTip) {
   const meta = CATEGORY_META[category];
   const Icon = meta.icon;
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <motion.article variants={cardVariants}>
+    <motion.article variants={shouldReduceMotion ? undefined : cardVariants}>
       <Card className="h-full border-l-4 border-accent bg-surface/95 text-white ring-white/8">
         <CardHeader className="gap-4">
           <div className="flex items-start justify-between gap-3">

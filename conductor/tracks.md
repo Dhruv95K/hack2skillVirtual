@@ -23,8 +23,8 @@ Last updated: 2026-06-19
 | 6 | AI-Powered Insights (Gemini API) | fullstack | `[x]` | 843d7fe |
 | 7 | Gamification (Streaks, Badges, Levels) | fullstack | `[x]` | 54738ac |
 | 8 | Carbon Offset Suggestions Page | fullstack | `[x]` | b6c7c07 |
-| 9 | Landing Page | frontend | `[/]` | — |
-| 10 | Polish, Accessibility & Final E2E Validation | fullstack | `[ ]` | — |
+| 9 | Landing Page | frontend | `[x]` | 9567e5e |
+| 10 | Polish, Accessibility & Final E2E Validation | fullstack | `[/]` | — |
 
 ---
 

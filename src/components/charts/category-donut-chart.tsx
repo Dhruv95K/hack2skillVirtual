@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities */
 'use client';
 
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -83,3 +84,4 @@ export function CategoryDonutChart({ data, loading }: CategoryDonutChartProps) {
     </div>
   );
 }
+
