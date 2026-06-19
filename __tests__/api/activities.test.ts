@@ -8,17 +8,19 @@ jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
 }));
 
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
+jest.mock('@/lib/prisma', () => {
+  const mockPrisma = {
+    $transaction: jest.fn(async (cb) => cb(mockPrisma)),
     activityLog: {
-      create: jest.fn(),
+      create: jest.fn().mockResolvedValue({ id: 'log-1', co2Kg: 17.1 }),
       findMany: jest.fn(),
     },
     user: {
-      update: jest.fn(),
+      update: jest.fn().mockResolvedValue({}),
     },
-  },
-}));
+  };
+  return { prisma: mockPrisma };
+});
 
 jest.mock('@/lib/gamification-engine', () => ({
   updateStreak: jest.fn(),

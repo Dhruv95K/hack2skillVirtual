@@ -9,7 +9,12 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
-  const limit = Number(request.nextUrl.searchParams.get('limit') ?? 50);
+  let limit = Number(request.nextUrl.searchParams.get('limit') ?? 50);
+  if (isNaN(limit) || limit <= 0) {
+    limit = 50;
+  } else {
+    limit = Math.min(limit, 100);
+  }
   const logs = await prisma.activityLog.findMany({ 
     where: { userId: user.id }, 
     orderBy: { loggedAt: 'desc' }, 
@@ -43,15 +48,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 }); 
   }
   
-  const log = await prisma.activityLog.create({ 
-    data: { userId: user.id, category, subType, quantity, unit, co2Kg } 
+  const log = await prisma.$transaction(async (tx) => {
+    const createdLog = await tx.activityLog.create({ 
+      data: { userId: user.id, category, subType, quantity, unit, co2Kg } 
+    });
+    
+    await tx.user.update({ 
+      where: { id: user.id }, 
+      data: { totalCo2Saved: { increment: co2Kg } } 
+    });
+    
+    return createdLog;
   });
-  
-  // Update totals + gamification
-  await prisma.user.update({ 
-    where: { id: user.id }, 
-    data: { totalCo2Saved: { increment: co2Kg } } 
-  });
+
   await updateStreak(user.id);
   await checkAndAwardBadges(user.id);
   
