@@ -18,7 +18,7 @@ Last updated: 2026-06-19
 | 1 | Project Scaffolding & Infrastructure | infra | `[x]` | 8cbf4fc |
 | 2 | Authentication (Signup / Login) | fullstack | `[x]` | 60ab4c7 |
 | 3 | Onboarding Quiz | fullstack | `[x]` | 0bf60b4 |
-| 4 | Activity Logging & CO₂ Calculation Engine | fullstack | `[ ]` | — |
+| 4 | Activity Logging & CO₂ Calculation Engine | fullstack | `[x]` | 7321c4f |
 | 5 | Progress Dashboard with Charts | fullstack | `[ ]` | — |
 | 6 | AI-Powered Insights (Gemini API) | fullstack | `[ ]` | — |
 | 7 | Gamification (Streaks, Badges, Levels) | fullstack | `[ ]` | — |
