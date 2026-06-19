@@ -14,7 +14,13 @@ jest.mock('recharts', () => ({
   Area: () => null,
   XAxis: () => null,
   YAxis: () => null,
-  Tooltip: () => null,
+  Tooltip: (props: any) => {
+    if (React.isValidElement(props.content)) {
+      const Content = props.content.type as React.FC<any>;
+      return <Content active={true} payload={[{ payload: { displayDate: 'Jun 18' }, value: 5.2 }]} />;
+    }
+    return null;
+  },
 }));
 
 jest.mock('@/components/ui/skeleton', () => ({

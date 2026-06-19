@@ -86,5 +86,32 @@ describe('/api/dashboard', () => {
       const todayTrend = json.trend.find((t: any) => t.date === todayStr);
       expect(todayTrend.co2Kg).toBe(5);
     });
+    it('returns 404 if user not found', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const request = new NextRequest('http://localhost/api/dashboard', { method: 'GET' });
+      const response = await GET(request);
+      
+      expect(response.status).toBe(404);
+      const json = await response.json();
+      expect(json.error).toBe('User not found');
+    });
+
+    it('returns 500 on internal server error', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      (prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('DB connection failed'));
+
+      const request = new NextRequest('http://localhost/api/dashboard', { method: 'GET' });
+      const response = await GET(request);
+      
+      expect(response.status).toBe(500);
+      const json = await response.json();
+      expect(json.error).toBe('Internal Server Error');
+    });
   });
 });

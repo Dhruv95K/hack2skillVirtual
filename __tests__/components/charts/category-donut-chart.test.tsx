@@ -13,7 +13,13 @@ jest.mock('recharts', () => ({
   PieChart: () => <div data-testid="pie-chart" />,
   Pie: () => null,
   Cell: () => null,
-  Tooltip: () => null,
+  Tooltip: (props: any) => {
+    if (React.isValidElement(props.content)) {
+      const Content = props.content.type as React.FC<any>;
+      return <Content active={true} payload={[{ payload: { color: '#22C55E' }, name: 'Transport', value: 10.5 }]} />;
+    }
+    return null;
+  },
   Legend: () => null,
 }));
 

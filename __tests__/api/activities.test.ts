@@ -90,6 +90,68 @@ describe('/api/activities', () => {
       expect(updateStreak).toHaveBeenCalledWith('user-1');
       expect(checkAndAwardBadges).toHaveBeenCalledWith('user-1');
     });
+
+    it('returns 400 on invalid JSON', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const request = new NextRequest('http://localhost/api/activities', { method: 'POST', body: '{invalid}' });
+      // NextRequest throws on bad json when we call request.json(), but in our test environment
+      // we need to mock it if it doesn't throw natively, or we can just pass an object that throws
+      request.json = jest.fn().mockRejectedValue(new Error('Invalid JSON'));
+      const response = await POST(request);
+      expect(response.status).toBe(400);
+    });
+
+    it('returns 400 on invalid category', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const request = new NextRequest('http://localhost/api/activities', { 
+        method: 'POST', body: JSON.stringify({ category: 'invalidCat', subType: 'car_petrol', quantity: 10, unit: 'km' }) 
+      });
+      const response = await POST(request);
+      expect(response.status).toBe(400);
+    });
+
+    it('returns 400 on invalid unit', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const request = new NextRequest('http://localhost/api/activities', { 
+        method: 'POST', body: JSON.stringify({ category: 'transport', subType: 'car_petrol', quantity: 10, unit: 'kg' }) 
+      });
+      const response = await POST(request);
+      expect(response.status).toBe(400);
+    });
+
+    it('returns 500 on db error', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      const mockTx = jest.fn().mockRejectedValue(new Error('DB Error'));
+      (prisma.$transaction as jest.Mock).mockImplementation(mockTx);
+
+      const request = new NextRequest('http://localhost/api/activities', { 
+        method: 'POST', body: JSON.stringify({ category: 'transport', subType: 'car_petrol', quantity: 10, unit: 'km' }) 
+      });
+      const response = await POST(request);
+      expect(response.status).toBe(500);
+    });
+
+    it('handles gamification errors gracefully', async () => {
+      const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+      (prisma.$transaction as jest.Mock).mockResolvedValue({ id: 'log-1', co2Kg: 17.1 });
+      (updateStreak as jest.Mock).mockRejectedValue(new Error('Gamification failed'));
+
+      const request = new NextRequest('http://localhost/api/activities', { 
+        method: 'POST', body: JSON.stringify({ category: 'transport', subType: 'car_petrol', quantity: 10, unit: 'km' }) 
+      });
+      const response = await POST(request);
+      expect(response.status).toBe(201); // Still 201
+    });
   });
 
   describe('GET /api/activities', () => {
