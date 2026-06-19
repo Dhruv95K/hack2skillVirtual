@@ -24,9 +24,10 @@ describe('Auth API Routes', () => {
 
   describe('POST /api/auth/signup', () => {
     it('returns 201 with valid body', async () => {
-      const mockSignUp = jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
+      const validUuid = '123e4567-e89b-12d3-a456-426614174000';
+      const mockSignUp = jest.fn().mockResolvedValue({ data: { user: { id: validUuid } }, error: null });
       (createClient as jest.Mock).mockResolvedValue({ auth: { signUp: mockSignUp } });
-      (prisma.user.create as jest.Mock).mockResolvedValue({ id: 'user-1', email: 'test@example.com', name: 'Test User' });
+      (prisma.user.create as jest.Mock).mockResolvedValue({ id: validUuid, email: 'test@example.com', name: 'Test User' });
 
       const request = new NextRequest('http://localhost/api/auth/signup', {
         method: 'POST',
@@ -37,7 +38,7 @@ describe('Auth API Routes', () => {
       const json = await response.json();
 
       expect(response.status).toBe(201);
-      expect(json.user).toEqual({ id: 'user-1', email: 'test@example.com', name: 'Test User' });
+      expect(json.user).toEqual({ id: validUuid, email: 'test@example.com', name: 'Test User' });
     });
 
     it('returns 400 if email already exists', async () => {
