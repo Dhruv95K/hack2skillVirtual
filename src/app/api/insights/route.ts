@@ -77,11 +77,10 @@ function parseTipsFromResponse(responseText: string): AiTip[] {
 
   const tips = parsed
     .map((tip) => normaliseTip(tip))
-    .filter((tip): tip is AiTip => tip !== null)
-    .slice(0, 5);
+    .filter((tip): tip is AiTip => tip !== null);
 
-  if (tips.length === 0) {
-    throw new Error('Gemini response did not include any valid tips.');
+  if (tips.length < 3 || tips.length > 5) {
+    throw new Error('Gemini response must contain between 3 and 5 valid tips.');
   }
 
   return tips;

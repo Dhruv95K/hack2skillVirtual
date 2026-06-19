@@ -204,6 +204,49 @@ describe('/api/insights', () => {
     });
   });
 
+  it('rejects Gemini responses that do not contain between 3 and 5 valid tips', async () => {
+    const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-3' } }, error: null });
+    (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
+
+    (prisma.activityLog.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'log-10',
+        category: 'transport',
+        subType: 'train',
+        quantity: 12,
+        unit: 'km',
+        co2Kg: 0.5,
+        loggedAt: new Date('2026-06-18T18:00:00.000Z'),
+      },
+    ]);
+
+    mockGenerateContent.mockResolvedValue({
+      response: {
+        text: () =>
+          JSON.stringify([
+            {
+              title: 'Take the train for short commutes',
+              description: 'Rail remains a strong option for cutting emissions on your routine trips.',
+              estimatedSavingKg: 1.2,
+              category: 'transport',
+            },
+            {
+              title: 'Combine errands',
+              description: 'Grouping stops into one trip can trim repeat starts and save fuel.',
+              estimatedSavingKg: 0.9,
+              category: 'transport',
+            },
+          ]),
+      },
+    });
+
+    const request = new NextRequest('http://localhost/api/insights', { method: 'POST' });
+    const response = await POST(request);
+
+    expect(response.status).toBe(500);
+    expect(prisma.aiInsight.create).not.toHaveBeenCalled();
+  });
+
   it('returns an empty tips payload when the user has no activity logs', async () => {
     const mockGetUser = jest.fn().mockResolvedValue({ data: { user: { id: 'user-2' } }, error: null });
     (createClient as jest.Mock).mockResolvedValue({ auth: { getUser: mockGetUser } });
