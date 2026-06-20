@@ -1,87 +1,72 @@
-# EcoTrack 🌿
+# EcoTrack — Carbon Footprint & Climate Action Assistant
 
-An intelligent, AI-powered assistant designed to help individuals understand, track, and significantly reduce their carbon footprint through personalized, contextual actions.
+A full-stack, AI-powered carbon footprint tracker designed to help individuals understand, monitor, and significantly reduce their environmental impact through simple, gamified daily actions.
 
-## 1. Chosen Vertical: Climate Action / Carbon Footprint Tracking
+## Chosen Vertical
 
-EcoTrack falls into the sustainability and climate action vertical. It empowers everyday users to take control of their environmental impact by measuring their daily activities, gaining AI-driven insights, and discovering practical ways to reduce their emissions or offset them.
+**Climate Action / Carbon Footprint Tracking** — helping users calculate their baseline emissions, track daily sustainable actions, and receive personalized AI insights to reduce their carbon footprint. This directly aligns with the goal of fostering environmental sustainability.
 
-## 2. Approach and Logic
+## How It Works
 
-We built EcoTrack around a simple, gamified user journey:
-*   **Onboarding Quiz:** Establish a baseline understanding of the user's lifestyle (diet, commute, home energy) to calculate an initial carbon footprint estimate.
-*   **Activity Tracking:** Users log daily activities (e.g., using public transport, eating a plant-based meal, saving energy at home). The system automatically calculates the CO2 emissions saved based on verified emission factors.
-*   **AI Insights:** Rather than presenting users with static facts, the platform uses Gemini AI to analyze their specific activity patterns and offer highly personalized, actionable tips to further reduce their footprint.
-*   **Gamification:** Users earn badges, level up (e.g., from "Seedling" to "Tree"), and build streaks. This leverages positive reinforcement to build long-term sustainable habits.
-*   **Offsets:** For emissions that cannot be reduced, users are directed to verified carbon offset programs.
+EcoTrack provides an intuitive, gamified user journey accessible across all devices:
 
-The system emphasizes speed, accessibility, and offline resilience, ensuring that taking climate action is as frictionless as possible.
+1. **Onboarding Quiz** — Establish a baseline understanding of the user's lifestyle (dietary habits, typical commute, home energy usage) to calculate an initial carbon footprint estimate.
+2. **Daily Activity Tracking** — Users log sustainable actions (e.g., taking public transit, eating a plant-based meal, hanging clothes to dry). The system automatically calculates the exact CO2 emissions saved based on verified, generalized emission factors.
+3. **AI-Powered Climate Insights** — After logging activities, the app calls the Google Gemini 2.5 Flash API (server-side) with the user's recent history to generate highly personalized, actionable tips for further emission reductions.
+4. **Dashboard & Data Visualization** — An interactive overview of the user's current level, streak counter, total CO2 saved, and responsive SVG charts showing trends across different emission categories (Transport, Diet, Energy).
+5. **Gamification System** — Users earn badges, level up (e.g., from "Seedling" to "Tree"), and build daily streaks. This leverages positive reinforcement to build long-term sustainable habits.
 
-## 3. How the Solution Works
+## Approach and Logic
 
-EcoTrack is a modern full-stack web application built with **Next.js 15 (App Router)** and **React 19**.
+We prioritized **Security, Code Quality, Accessibility, and Efficiency** throughout the architecture:
 
-### Architecture & Tech Stack
+- **Authentication & Security:** Email/password via Supabase Auth. Row Level Security (RLS) policies are strictly enforced so users can only access their own data. Input validation is applied to all activity logs.
+- **AI Personalization:** Gemini 2.5 Flash analyzes specific activity patterns. The API call is made purely server-side so the API key is never exposed to the client, ensuring secure and efficient usage.
+- **Data Storage:** Supabase Postgres (accessed via Prisma ORM) with tables for users, activities, and gamification metrics. The database schema includes optimized indexes for fast retrieval.
+- **Performance & Efficiency:** Heavy use of React 19 Server Components minimizes the client-side JavaScript bundle. Next.js Data Cache and Route Cache prevent redundant API calls, ensuring high performance. The repository is kept lean (< 10 MB) by utilizing vector graphics over raster images.
+- **Accessibility:** Designed inclusively with full keyboard navigability, semantic HTML, ARIA labels, and `prefers-reduced-motion` support for animations. The UI adheres to strict WCAG AA color contrast guidelines.
 
-*   **Frontend:** React 19, Tailwind CSS, Framer Motion (for fluid, accessible animations), Recharts (for data visualization).
-*   **Backend:** Next.js Route Handlers provide a robust, serverless API layer.
-*   **Database:** PostgreSQL (via Supabase), accessed through Prisma ORM for type-safe database interactions.
-*   **Authentication:** Supabase Auth for secure user sign-up and sign-in.
-*   **AI Integration:** `@google/genai` (Gemini 2.5 Flash) is used to generate personalized, context-aware insights based on the user's recent activity logs.
-*   **Testing:** Jest for unit/API testing, Playwright for End-to-End (E2E) testing.
+## Tech Stack
 
-### ASCII Architecture Diagram
+- **Frontend:** Next.js 15 (App Router), React 19, Tailwind CSS, Framer Motion, Recharts
+- **Backend:** Next.js Route Handlers (Serverless API layer)
+- **Database & Auth:** PostgreSQL via Supabase, Prisma ORM, Supabase Auth
+- **AI:** Google Gemini 2.5 Flash (`@google/genai`)
+- **Testing:** Jest (Unit/API tests) + Playwright (End-to-End browser tests)
 
-```text
-+-------------------+       +--------------------+       +-------------------+
-|                   |       |                    |       |                   |
-|   User Browser    | <---> |   Next.js Server   | <---> |  Supabase / PostgreSQL |
-|  (React 19, UI)   |       |  (Route Handlers)  |       |  (Auth & DB)      |
-|                   |       |                    |       |                   |
-+-------------------+       +--------------------+       +-------------------+
-                                      |
-                                      v
-                            +--------------------+
-                            |                    |
-                            |   Gemini API       |
-                            | (Personalized Tips)|
-                            |                    |
-                            +--------------------+
+## Assumptions
+
+1. **Emission Factors:** The CO2 calculations use standard, generalized emission factors (e.g., kg CO2 per mile driven or per vegetarian meal) which are simplified approximations for gamification purposes. They are not intended for strict regulatory carbon accounting.
+2. **AI Rate Limits:** For continuous automated End-to-End testing, we assume the AI provider (Gemini) could hit rate limits, so an E2E bypass mock is implemented to ensure test stability.
+3. **Gamification Engagement:** We assume users are motivated by streaks, badges, and tangible "CO2 saved" metrics to return to the app daily.
+4. **Authentication:** Email/password authentication is sufficient (no social auth required).
+
+## Running Locally
+
+1. Clone the repository
+2. `npm install`
+3. Create `.env.local` with the following variables:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   DATABASE_URL=your_prisma_direct_connection_string
+   DIRECT_URL=your_supabase_connection_pooling_string
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
+4. Run the database migrations: `npx prisma db push`
+5. Start the development server: `npm run dev` — open http://localhost:3000
+
+## Running Tests
+
+We utilize a robust testing suite for maximum code reliability.
+
+**Unit and API Tests:**
+```bash
+npm test
 ```
 
-## 4. Assumptions Made
+**End-to-End (E2E) Journey Tests (Playwright):**
+```bash
+npx playwright test
+```
 
-*   **Emission Factors:** The CO2 calculations use standard, generalized emission factors (e.g., kg CO2 per mile driven or per vegetarian meal) which are simplified approximations for gamification purposes. They are not intended for strict regulatory carbon accounting.
-*   **AI Rate Limits:** For continuous automated End-to-End testing, we assume the AI provider (Gemini) could hit rate limits, so we implemented an E2E bypass mock to ensure test stability without exhausting quota.
-*   **Design System:** We assumed a "strictly dark mode, biophilic" design aesthetic to convey an organic, modern, and energy-efficient vibe that aligns with the sustainability theme.
-*   **Gamification Engagement:** We assume that users are motivated by streaks, badges, and tangible "CO2 saved" metrics to return to the app daily.
-
-## 5. Setup Instructions
-
-1.  **Clone the repository.**
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-3.  **Environment Variables:** Create a `.env.local` file with the following variables:
-    *   `NEXT_PUBLIC_SUPABASE_URL`
-    *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-    *   `DATABASE_URL` (Direct Prisma connection string)
-    *   `DIRECT_URL` (Supabase connection pooling)
-    *   `GEMINI_API_KEY` (For AI insights)
-4.  **Database Migration:**
-    ```bash
-    npx prisma db push
-    ```
-5.  **Run Development Server:**
-    ```bash
-    npm run dev
-    ```
-6.  **Run Tests:**
-    *   Unit Tests: `npm run test`
-    *   E2E Tests: `npx playwright test`
-
-## 6. Hackathon Constraints Check
-* **Repo Size:** < 10 MB (Verified: ~314 KB).
-* **Code Quality & Accessibility:** Fully checked with `ui-ux-pro-max` guidelines, including `useReducedMotion` support.
-* **E2E Validation:** Full journey validated with Playwright.
