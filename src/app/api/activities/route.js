@@ -6,6 +6,7 @@ import { calculateActivityCO2 } from '@/lib/co2-calculator';
 import { checkAndAwardBadges, updateStreak } from '@/lib/gamification-engine';
 import { ACTIVITY_UNITS } from '@/lib/constants';
 import { activitiesRateLimit, checkRateLimit } from '@/lib/rate-limit';
+import { z } from 'zod';
 export async function GET(request) {
   // TODO: Decode JWT synchronously to rate-limit by user ID instead of IP to prevent NAT collisions.
   const rateLimitResponse = await checkRateLimit(request, activitiesRateLimit);
@@ -86,26 +87,31 @@ export async function POST(request) {
       status: 400
     });
   }
+
+  const activitySchema = z.object({
+    category: z.enum(['transport', 'food', 'energy']),
+    subType: z.string().min(1, 'subType is required'),
+    quantity: z.number().positive('quantity must be a positive number'),
+    unit: z.string().min(1, 'unit is required')
+  });
+
+  const validation = activitySchema.safeParse(body);
+  if (!validation.success) {
+    return NextResponse.json({
+      error: validation.error?.errors?.[0]?.message || validation.error?.issues?.[0]?.message || 'Invalid input',
+      details: validation.error?.errors || validation.error?.issues
+    }, {
+      status: 400
+    });
+  }
+
   const {
     category,
     subType,
     quantity,
     unit
-  } = body;
-  if (!category || !subType || quantity == null || !unit || typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
-    return NextResponse.json({
-      error: 'Missing or invalid required fields'
-    }, {
-      status: 400
-    });
-  }
-  if (!['transport', 'food', 'energy'].includes(category)) {
-    return NextResponse.json({
-      error: 'Invalid category'
-    }, {
-      status: 400
-    });
-  }
+  } = validation.data;
+
   const expectedUnit = ACTIVITY_UNITS[subType] || ACTIVITY_UNITS[category];
   if (expectedUnit && unit !== expectedUnit) {
     return NextResponse.json({
