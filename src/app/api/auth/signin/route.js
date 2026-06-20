@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { signInRateLimit, checkRateLimit } from '@/lib/rate-limit';
+import { authRateLimit, checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request) {
-  const rateLimitResponse = await checkRateLimit(request, signInRateLimit);
+  const rateLimitResponse = await checkRateLimit(request, authRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
   const {

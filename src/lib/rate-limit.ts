@@ -3,11 +3,11 @@ import { Redis } from "@upstash/redis";
 import { NextRequest, NextResponse } from "next/server";
 
 // Create a new ratelimiter, that allows 5 requests per 15 minutes
-export const signInRateLimit = new Ratelimit({
+export const authRateLimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(5, "15 m"),
   analytics: true,
-  prefix: "@upstash/ratelimit/signin",
+  prefix: "@upstash/ratelimit/auth",
 });
 
 // 10 requests per day
@@ -27,7 +27,7 @@ export const activitiesRateLimit = new Ratelimit({
 });
 
 export async function checkRateLimit(request: NextRequest, ratelimit: Ratelimit) {
-  const ip = request.ip ?? request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',').pop()?.trim() ?? '127.0.0.1';
+  const ip = request.ip ?? request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
   try {
     const { success } = await ratelimit.limit(ip);
     if (!success) {

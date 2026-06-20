@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { signInRateLimit, checkRateLimit } from '@/lib/rate-limit';
+import { authRateLimit, checkRateLimit } from '@/lib/rate-limit';
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -17,7 +17,7 @@ const signupSchema = z.object({
 });
 
 export async function POST(request) {
-  const rateLimitResponse = await checkRateLimit(request, signInRateLimit);
+  const rateLimitResponse = await checkRateLimit(request, authRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
   const body = await request.json();

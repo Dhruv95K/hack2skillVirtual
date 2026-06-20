@@ -16,7 +16,7 @@ jest.mock('@/lib/prisma', () => ({
 }));
 jest.mock('@/lib/rate-limit', () => ({
   checkRateLimit: jest.fn().mockResolvedValue(null),
-  signInRateLimit: {}
+  authRateLimit: {}
 }));
 describe('Auth API Routes', () => {
   beforeEach(() => {
