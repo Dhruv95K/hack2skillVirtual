@@ -61,7 +61,7 @@ export function CategoryDonutChart({ data, loading }: CategoryDonutChartProps) {
         <span className="text-3xl font-heading font-bold text-white">{total.toFixed(1)}</span>
         <span className="text-sm text-muted-foreground">kg CO₂</span>
       </div>
-      <ResponsiveContainer width="100%" height="100%" className="z-10">
+      <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} className="z-10">
         <PieChart>
           <Pie
             data={chartData}

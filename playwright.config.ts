@@ -4,8 +4,12 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
   retries: 1,
+  timeout: 60000,
+  expect: {
+    timeout: 10000,
+  },
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3001',
     trace: 'on-first-retry',
   },
   projects: [
@@ -15,11 +19,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
+    command: 'npm run dev -- -p 3001',
     env: {
       E2E_AUTH_BYPASS_ENABLED: 'true',
     },
-    url: 'http://localhost:3000',
-    reuseExistingServer: true,
+    url: 'http://localhost:3001',
+    reuseExistingServer: false,
   },
 });
