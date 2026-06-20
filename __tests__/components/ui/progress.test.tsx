@@ -25,7 +25,7 @@ describe('Progress Components', () => {
   it('renders the ProgressValue', () => {
     render(
       <Progress value={50}>
-        <ProgressValue>50%</ProgressValue>
+        <ProgressValue>{() => '50%'}</ProgressValue>
       </Progress>
     );
     expect(screen.getByText('50%')).toBeInTheDocument();
