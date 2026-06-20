@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase/server';
+import { insightsRateLimit } from '@/lib/rate-limit';
 const systemPrompt = `You are EcoTrack's carbon reduction advisor. Analyze the user's carbon footprint data and provide exactly 3-5 actionable, personalized tips to reduce their CO2 emissions. Each tip must:
 1. Be specific to their top-emitting category
 2. Include an estimated CO2 saving (in kg)
@@ -108,6 +109,12 @@ async function getAuthenticatedUser(request) {
 }
 export async function GET(request) {
   const user = await getAuthenticatedUser(request);
+  const identifier = user?.id || request.headers.get("x-forwarded-for") || "127.0.0.1";
+  const { success } = await insightsRateLimit.limit(identifier);
+  if (!success) {
+    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+  }
+
   if (!user) {
     return NextResponse.json({
       error: 'Unauthorized'
@@ -115,6 +122,7 @@ export async function GET(request) {
       status: 401
     });
   }
+
   try {
     const latestInsight = await prisma.aiInsight.findFirst({
       where: {
@@ -158,6 +166,12 @@ export async function GET(request) {
 }
 export async function POST(request) {
   const user = await getAuthenticatedUser(request);
+  const identifier = user?.id || request.headers.get("x-forwarded-for") || "127.0.0.1";
+  const { success } = await insightsRateLimit.limit(identifier);
+  if (!success) {
+    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+  }
+
   if (!user) {
     return NextResponse.json({
       error: 'Unauthorized'
@@ -165,6 +179,7 @@ export async function POST(request) {
       status: 401
     });
   }
+
   const cookieHeader = request.headers.get('cookie') || '';
   const isE2E = process.env.E2E_AUTH_BYPASS_ENABLED === 'true' && cookieHeader.includes('e2e-mock-auth');
   try {

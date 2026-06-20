@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { calculateActivityCO2 } from '@/lib/co2-calculator';
 import { checkAndAwardBadges, updateStreak } from '@/lib/gamification-engine';
 import { ACTIVITY_UNITS } from '@/lib/constants';
+import { activitiesRateLimit } from '@/lib/rate-limit';
 export async function GET(request) {
   const supabase = await createClient();
   const {
@@ -14,12 +15,19 @@ export async function GET(request) {
   } = await supabase.auth.getUser();
   const isE2EAuthBypassEnabled = process.env.E2E_AUTH_BYPASS_ENABLED === 'true';
   const isE2E = isE2EAuthBypassEnabled && request.cookies.has('e2e-mock-auth');
+  const identifier = user?.id || request.headers.get("x-forwarded-for") || "127.0.0.1";
+  const { success } = await activitiesRateLimit.limit(identifier);
+  if (!success) {
+    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+  }
+
   if (!user && !isE2E) return NextResponse.json({
     error: 'Unauthorized'
   }, {
     status: 401
   });
   const userId = user?.id || 'e2e-user';
+
   let limit = Number(request.nextUrl.searchParams.get('limit') ?? 50);
   if (isNaN(limit) || limit <= 0) {
     limit = 50;
@@ -57,12 +65,19 @@ export async function POST(request) {
   } = await supabase.auth.getUser();
   const isE2EAuthBypassEnabled = process.env.E2E_AUTH_BYPASS_ENABLED === 'true';
   const isE2E = isE2EAuthBypassEnabled && request.cookies.has('e2e-mock-auth');
+  const identifier = user?.id || request.headers.get("x-forwarded-for") || "127.0.0.1";
+  const { success } = await activitiesRateLimit.limit(identifier);
+  if (!success) {
+    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+  }
+
   if (!user && !isE2E) return NextResponse.json({
     error: 'Unauthorized'
   }, {
     status: 401
   });
   const userId = user?.id || 'e2e-user';
+
   let body;
   try {
     body = await request.json();
