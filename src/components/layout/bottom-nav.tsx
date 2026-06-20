@@ -27,7 +27,7 @@ export function BottomNav() {
               key={link.name}
               href={link.href}
               className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-200 ${
-                isActive ? 'text-accent' : 'text-muted-foreground hover:text-white'
+                isActive ? 'text-emerald-400' : 'text-muted-foreground hover:text-white'
               }`}
             >
               <Icon className="w-5 h-5" />

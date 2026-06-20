@@ -63,7 +63,7 @@ export function Sidebar({ user }: SidebarProps) {
               href={link.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 ${
                 isActive 
-                  ? 'bg-surface-2 text-accent font-medium' 
+                  ? 'bg-emerald-500/10 text-emerald-400 font-medium' 
                   : 'text-muted-foreground hover:text-white hover:bg-surface-2'
               }`}
             >
