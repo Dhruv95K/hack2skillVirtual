@@ -3,26 +3,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+
+const signupSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  name: z.string().min(1, 'Name is required'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+});
+
 export async function POST(request) {
-  const {
-    email,
-    name,
-    password
-  } = await request.json();
-  if (!email || !name || !password) {
+  const body = await request.json();
+  const validation = signupSchema.safeParse(body);
+  
+  if (!validation.success) {
     return NextResponse.json({
-      error: 'Missing required fields'
+      error: validation.error?.errors?.[0]?.message || validation.error?.issues?.[0]?.message || 'Invalid input'
     }, {
       status: 400
     });
   }
-  if (password.length < 8) {
-    return NextResponse.json({
-      error: 'Password must be at least 8 characters'
-    }, {
-      status: 400
-    });
-  }
+
+  const { email, name, password } = validation.data;
   const supabase = await createClient();
   const {
     data,

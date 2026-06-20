@@ -53,7 +53,7 @@ describe('Auth API Routes', () => {
         body: JSON.stringify({
           email: 'test@example.com',
           name: 'Test User',
-          password: 'password123'
+          password: 'ValidPass123!'
         })
       });
       const response = await signupPOST(request);
@@ -82,7 +82,7 @@ describe('Auth API Routes', () => {
         body: JSON.stringify({
           email: 'existing@example.com',
           name: 'Existing User',
-          password: 'password123'
+          password: 'ValidPass123!'
         })
       });
       const response = await signupPOST(request);
@@ -90,19 +90,46 @@ describe('Auth API Routes', () => {
       expect(response.status).toBe(400);
       expect(json.error).toBe('User already registered');
     });
-    it('returns 400 if password < 8 chars', async () => {
-      const request = new NextRequest('http://localhost/api/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: 'test@example.com',
-          name: 'Test',
-          password: 'short'
-        })
+    describe('password validation', () => {
+      const runTest = async (password) => {
+        const request = new NextRequest('http://localhost/api/auth/signup', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: 'test@example.com',
+            name: 'Test',
+            password
+          })
+        });
+        return signupPOST(request);
+      };
+
+      it('returns 400 if password < 8 chars', async () => {
+        const response = await runTest('Short1!');
+        const json = await response.json();
+        expect(response.status).toBe(400);
+        expect(json.error).toMatch(/Password must be at least 8 characters/);
       });
-      const response = await signupPOST(request);
-      const json = await response.json();
-      expect(response.status).toBe(400);
-      expect(json.error).toBe('Password must be at least 8 characters');
+
+      it('returns 400 if password lacks uppercase', async () => {
+        const response = await runTest('lowercase1!');
+        const json = await response.json();
+        expect(response.status).toBe(400);
+        expect(json.error).toMatch(/Password must contain at least one uppercase letter/);
+      });
+
+      it('returns 400 if password lacks lowercase', async () => {
+        const response = await runTest('UPPERCASE1!');
+        const json = await response.json();
+        expect(response.status).toBe(400);
+        expect(json.error).toMatch(/Password must contain at least one lowercase letter/);
+      });
+
+      it('returns 400 if password lacks number', async () => {
+        const response = await runTest('NoNumbersHere!');
+        const json = await response.json();
+        expect(response.status).toBe(400);
+        expect(json.error).toMatch(/Password must contain at least one number/);
+      });
     });
   });
   describe('POST /api/auth/signin', () => {
@@ -125,7 +152,7 @@ describe('Auth API Routes', () => {
         method: 'POST',
         body: JSON.stringify({
           email: 'test@example.com',
-          password: 'password123'
+          password: 'ValidPass123!'
         })
       });
       const response = await signinPOST(request);

@@ -7,6 +7,12 @@ import { checkAndAwardBadges, updateStreak } from '@/lib/gamification-engine';
 import { ACTIVITY_UNITS } from '@/lib/constants';
 import { activitiesRateLimit } from '@/lib/rate-limit';
 export async function GET(request) {
+  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
+  const { success } = await activitiesRateLimit.limit(ip);
+  if (!success) {
+    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const {
     data: {
@@ -15,11 +21,6 @@ export async function GET(request) {
   } = await supabase.auth.getUser();
   const isE2EAuthBypassEnabled = process.env.E2E_AUTH_BYPASS_ENABLED === 'true';
   const isE2E = isE2EAuthBypassEnabled && request.cookies.has('e2e-mock-auth');
-  const identifier = user?.id || request.headers.get("x-forwarded-for") || "127.0.0.1";
-  const { success } = await activitiesRateLimit.limit(identifier);
-  if (!success) {
-    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
-  }
 
   if (!user && !isE2E) return NextResponse.json({
     error: 'Unauthorized'
@@ -57,6 +58,12 @@ export async function GET(request) {
   }
 }
 export async function POST(request) {
+  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
+  const { success } = await activitiesRateLimit.limit(ip);
+  if (!success) {
+    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const {
     data: {
@@ -65,11 +72,6 @@ export async function POST(request) {
   } = await supabase.auth.getUser();
   const isE2EAuthBypassEnabled = process.env.E2E_AUTH_BYPASS_ENABLED === 'true';
   const isE2E = isE2EAuthBypassEnabled && request.cookies.has('e2e-mock-auth');
-  const identifier = user?.id || request.headers.get("x-forwarded-for") || "127.0.0.1";
-  const { success } = await activitiesRateLimit.limit(identifier);
-  if (!success) {
-    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
-  }
 
   if (!user && !isE2E) return NextResponse.json({
     error: 'Unauthorized'

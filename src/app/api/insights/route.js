@@ -108,12 +108,13 @@ async function getAuthenticatedUser(request) {
   return user;
 }
 export async function GET(request) {
-  const user = await getAuthenticatedUser(request);
-  const identifier = user?.id || request.headers.get("x-forwarded-for") || "127.0.0.1";
-  const { success } = await insightsRateLimit.limit(identifier);
+  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
+  const { success } = await insightsRateLimit.limit(ip);
   if (!success) {
     return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
   }
+
+  const user = await getAuthenticatedUser(request);
 
   if (!user) {
     return NextResponse.json({
@@ -165,12 +166,13 @@ export async function GET(request) {
   }
 }
 export async function POST(request) {
-  const user = await getAuthenticatedUser(request);
-  const identifier = user?.id || request.headers.get("x-forwarded-for") || "127.0.0.1";
-  const { success } = await insightsRateLimit.limit(identifier);
+  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
+  const { success } = await insightsRateLimit.limit(ip);
   if (!success) {
     return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
   }
+
+  const user = await getAuthenticatedUser(request);
 
   if (!user) {
     return NextResponse.json({
