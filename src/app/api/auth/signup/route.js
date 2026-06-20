@@ -20,7 +20,12 @@ export async function POST(request) {
   const rateLimitResponse = await checkRateLimit(request, authRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const body = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch (e) {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
   const validation = signupSchema.safeParse(body);
   
   if (!validation.success) {

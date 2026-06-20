@@ -27,7 +27,7 @@ export const activitiesRateLimit = new Ratelimit({
 });
 
 export async function checkRateLimit(request: NextRequest, ratelimit: Ratelimit) {
-  const ip = request.ip ?? request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
+  const ip = request.ip ?? '127.0.0.1';
   try {
     const { success } = await ratelimit.limit(ip);
     if (!success) {

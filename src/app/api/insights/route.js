@@ -108,6 +108,7 @@ async function getAuthenticatedUser(request) {
   return user;
 }
 export async function GET(request) {
+  // TODO: Decode JWT synchronously to rate-limit by user ID instead of IP to prevent NAT collisions.
   const rateLimitResponse = await checkRateLimit(request, insightsRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -163,6 +164,7 @@ export async function GET(request) {
   }
 }
 export async function POST(request) {
+  // TODO: Decode JWT synchronously to rate-limit by user ID instead of IP to prevent NAT collisions.
   const rateLimitResponse = await checkRateLimit(request, insightsRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 

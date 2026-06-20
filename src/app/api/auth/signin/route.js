@@ -6,10 +6,16 @@ export async function POST(request) {
   const rateLimitResponse = await checkRateLimit(request, authRateLimit);
   if (rateLimitResponse) return rateLimitResponse;
 
+  let body;
+  try {
+    body = await request.json();
+  } catch (e) {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
   const {
     email,
     password
-  } = await request.json();
+  } = body;
   const supabase = await createClient();
   const {
     data,
