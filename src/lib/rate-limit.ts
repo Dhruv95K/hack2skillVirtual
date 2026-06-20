@@ -27,6 +27,10 @@ export const activitiesRateLimit = new Ratelimit({
 });
 
 export async function checkRateLimit(request: NextRequest, ratelimit: Ratelimit) {
+  if (process.env.E2E_AUTH_BYPASS_ENABLED === 'true' && request.cookies.has('e2e-mock-auth')) {
+    return null; // Bypass rate limits during E2E testing
+  }
+
   const ip = request.ip ?? '127.0.0.1';
   try {
     const { success } = await ratelimit.limit(ip);
