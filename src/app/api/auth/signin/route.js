@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { signInRateLimit } from '@/lib/rate-limit';
+import { signInRateLimit, checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request) {
-  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
-  const { success } = await signInRateLimit.limit(ip);
-  if (!success) {
-    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
-  }
+  const rateLimitResponse = await checkRateLimit(request, signInRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const {
     email,

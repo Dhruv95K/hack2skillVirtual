@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase/server';
-import { insightsRateLimit } from '@/lib/rate-limit';
+import { insightsRateLimit, checkRateLimit } from '@/lib/rate-limit';
 const systemPrompt = `You are EcoTrack's carbon reduction advisor. Analyze the user's carbon footprint data and provide exactly 3-5 actionable, personalized tips to reduce their CO2 emissions. Each tip must:
 1. Be specific to their top-emitting category
 2. Include an estimated CO2 saving (in kg)
@@ -108,11 +108,8 @@ async function getAuthenticatedUser(request) {
   return user;
 }
 export async function GET(request) {
-  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
-  const { success } = await insightsRateLimit.limit(ip);
-  if (!success) {
-    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
-  }
+  const rateLimitResponse = await checkRateLimit(request, insightsRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const user = await getAuthenticatedUser(request);
 
@@ -166,11 +163,8 @@ export async function GET(request) {
   }
 }
 export async function POST(request) {
-  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
-  const { success } = await insightsRateLimit.limit(ip);
-  if (!success) {
-    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
-  }
+  const rateLimitResponse = await checkRateLimit(request, insightsRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const user = await getAuthenticatedUser(request);
 

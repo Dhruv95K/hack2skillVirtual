@@ -9,6 +9,10 @@ const mockGetGenerativeModel = jest.fn(() => ({
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn()
 }));
+jest.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: jest.fn().mockResolvedValue(null),
+  insightsRateLimit: {}
+}));
 jest.mock('@/lib/prisma', () => {
   const mockPrisma = {
     activityLog: {

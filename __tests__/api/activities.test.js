@@ -6,6 +6,10 @@ import { updateStreak, checkAndAwardBadges } from '@/lib/gamification-engine';
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn()
 }));
+jest.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: jest.fn().mockResolvedValue(null),
+  activitiesRateLimit: {}
+}));
 jest.mock('@/lib/prisma', () => {
   const mockPrisma = {
     $transaction: jest.fn(async cb => cb(mockPrisma)),

@@ -5,13 +5,10 @@ import { prisma } from '@/lib/prisma';
 import { calculateActivityCO2 } from '@/lib/co2-calculator';
 import { checkAndAwardBadges, updateStreak } from '@/lib/gamification-engine';
 import { ACTIVITY_UNITS } from '@/lib/constants';
-import { activitiesRateLimit } from '@/lib/rate-limit';
+import { activitiesRateLimit, checkRateLimit } from '@/lib/rate-limit';
 export async function GET(request) {
-  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
-  const { success } = await activitiesRateLimit.limit(ip);
-  if (!success) {
-    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
-  }
+  const rateLimitResponse = await checkRateLimit(request, activitiesRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const supabase = await createClient();
   const {
@@ -58,11 +55,8 @@ export async function GET(request) {
   }
 }
 export async function POST(request) {
-  const ip = request.ip || request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
-  const { success } = await activitiesRateLimit.limit(ip);
-  if (!success) {
-    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
-  }
+  const rateLimitResponse = await checkRateLimit(request, activitiesRateLimit);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const supabase = await createClient();
   const {

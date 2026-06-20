@@ -1,5 +1,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { NextRequest, NextResponse } from "next/server";
 
 // Create a new ratelimiter, that allows 5 requests per 15 minutes
 export const signInRateLimit = new Ratelimit({
@@ -24,3 +25,17 @@ export const activitiesRateLimit = new Ratelimit({
   analytics: true,
   prefix: "@upstash/ratelimit/activities",
 });
+
+export async function checkRateLimit(request: NextRequest, ratelimit: Ratelimit) {
+  const ip = request.ip ?? request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',').pop()?.trim() ?? '127.0.0.1';
+  try {
+    const { success } = await ratelimit.limit(ip);
+    if (!success) {
+      return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+    }
+  } catch (err) {
+    console.error('Rate limit error:', err);
+    // fail-open
+  }
+  return null;
+}
