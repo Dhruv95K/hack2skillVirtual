@@ -121,8 +121,7 @@ export function Features() {
                 delay: shouldReduceMotion ? 0 : index * 0.15,
                 ease: [0.21, 0.47, 0.32, 0.98]
               }}
-              onClick={() => console.info(`[Analytics] Clicked feature card: ${feature.title}`)}
-              className={`bg-card rounded-3xl p-8 border border-border/50 transition-all duration-300 shadow-sm hover:shadow-lg group flex flex-col justify-between overflow-hidden relative cursor-pointer ${feature.hoverBorder} ${feature.className}`}
+              className={`bg-card rounded-3xl p-8 border border-border/50 transition-all duration-300 shadow-sm hover:shadow-lg group flex flex-col justify-between overflow-hidden relative ${feature.hoverBorder} ${feature.className}`}
             >
               <div className="flex flex-col h-full z-10 relative">
                 <div className="mb-6 flex items-center justify-between">
