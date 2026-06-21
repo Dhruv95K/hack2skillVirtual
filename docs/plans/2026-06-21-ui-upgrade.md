@@ -1,7 +1,5 @@
 # UI Upgrade Implementation Plan
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
-
 **Goal:** Transform the EcoTrack dashboard into a vibrant, high-performance "Bento Grid Showcase" that feels organic, inviting, and gamified across both light and dark modes.
 
 **Architecture:** We will implement a continuous palette system (Nature Green + Ocean Blue) utilizing Tailwind v4's OKLCH color spaces to ensure vibrant dark and light modes. Layouts will be refactored into a responsive Bento Grid using CSS Grid and Flexbox. Animations will rely on Framer Motion with careful orchestration (e.g., staggered fades, ease-out transitions) and strict adherence to `prefers-reduced-motion` for accessibility and performance.

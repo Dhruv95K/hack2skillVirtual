@@ -36,7 +36,7 @@ export function Hero() {
           {/* Dynamic Gamification Badge Teaser */}
           <motion.div 
             aria-hidden="true"
-            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+            initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.8, rotate: shouldReduceMotion ? 0 : -10 }}
             animate={{ 
               opacity: 1, 
               scale: 1, 
@@ -44,23 +44,23 @@ export function Hero() {
               y: shouldReduceMotion ? 0 : [0, -10, 0] 
             }}
             transition={{ 
-              opacity: { duration: 0.5, delay: 0.3 },
-              scale: { duration: 0.5, delay: 0.3, type: "spring" },
-              y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 } 
+              opacity: { duration: shouldReduceMotion ? 0 : 0.5, delay: 0.3 },
+              scale: { duration: shouldReduceMotion ? 0 : 0.5, delay: 0.3, type: "spring" },
+              y: { duration: shouldReduceMotion ? 0 : 3, repeat: Infinity, ease: "easeInOut", delay: 1 } 
             }}
             className="absolute -top-12 -right-4 md:-top-16 md:-right-12 bg-background/60 backdrop-blur-md border border-border/50 shadow-xl rounded-2xl p-3 flex items-center gap-3 z-20 pointer-events-none"
           >
-            <div className="bg-[#22C55E]/20 p-2 rounded-full text-[#22C55E]">
+            <div className="bg-nature-green/20 p-2 rounded-full text-green-700 dark:text-nature-green">
               <Leaf className="w-5 h-5" />
             </div>
             <div className="text-left">
               <p className="text-xs font-bold text-foreground">Eco Warrior</p>
-              <p className="text-[10px] font-medium text-[#22C55E]">+50 points</p>
+              <p className="text-[10px] font-medium text-green-700 dark:text-nature-green">+50 points</p>
             </div>
           </motion.div>
 
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 font-[family-name:var(--font-fira-code)] text-foreground">
-            Understand & Reduce Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] to-[#0EA5E9]">Carbon Footprint</span>
+            Understand & Reduce Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 dark:from-nature-green dark:to-ocean-blue">Carbon Footprint</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto font-[family-name:var(--font-fira-sans)]">
             Track your daily impact across transport, food, and energy. Get AI-powered insights and take meaningful action for the planet.
@@ -77,7 +77,7 @@ export function Hero() {
                 href="/signup" 
                 className={cn(
                   buttonVariants({ size: "lg" }), 
-                  "bg-gradient-to-r from-[#22C55E] to-[#0EA5E9] hover:from-[#16A34A] hover:to-[#0284C7] text-white rounded-2xl h-14 px-8 text-lg w-full sm:w-auto font-medium shadow-lg hover:shadow-xl transition-all duration-300 border-0"
+                  "bg-gradient-to-r from-nature-green to-ocean-blue hover:from-nature-green/90 hover:to-ocean-blue/90 text-primary-foreground rounded-2xl h-14 px-8 text-lg w-full sm:w-auto font-medium shadow-lg hover:shadow-xl transition-all duration-300 border-0"
                 )}
               >
                 Start for Free <ArrowRight className="ml-2 h-5 w-5" />
@@ -88,7 +88,7 @@ export function Hero() {
               href="#features" 
               className={cn(
                 buttonVariants({ variant: "ghost", size: "lg" }), 
-                "rounded-2xl h-14 px-8 text-lg w-full sm:w-auto font-medium hover:text-[#22C55E] transition-colors"
+                "rounded-2xl h-14 px-8 text-lg w-full sm:w-auto font-medium hover:text-green-700 dark:hover:text-nature-green transition-colors"
               )}
             >
               See how it works <ArrowDown className="ml-2 h-5 w-5" />
@@ -107,7 +107,7 @@ export function Hero() {
             <span className="text-sm text-muted-foreground mt-1">activities logged</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-3xl font-bold text-[#22C55E] font-[family-name:var(--font-fira-code)]">1000+</span>
+            <span className="text-3xl font-bold text-green-700 dark:text-nature-green font-[family-name:var(--font-fira-code)]">1000+</span>
             <span className="text-sm text-muted-foreground mt-1">kg CO₂ saved</span>
           </div>
         </div>

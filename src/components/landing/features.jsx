@@ -59,12 +59,12 @@ const features = [
     description: "Earn badges, maintain streaks, and level up as you make sustainable choices.",
     icon: Trophy,
     className: "md:col-span-1 md:row-span-1",
-    iconColor: "text-[oklch(0.7_0.2_80)]", // Yellowish vibrant
-    iconBg: "bg-[oklch(0.7_0.2_80)]/10",
-    hoverBorder: "hover:border-[oklch(0.7_0.2_80)]/30",
+    iconColor: "text-amber-600 dark:text-amber-400",
+    iconBg: "bg-amber-600/10 dark:bg-amber-400/10",
+    hoverBorder: "hover:border-amber-600/30 dark:hover:border-amber-400/30",
     content: (
       <div className="absolute -bottom-6 -right-6 opacity-5 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
-        <Trophy className="w-40 h-40 text-[oklch(0.7_0.2_80)]" />
+        <Trophy className="w-40 h-40 text-amber-600 dark:text-amber-400" />
       </div>
     )
   }
@@ -83,15 +83,16 @@ export function Features() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16 max-w-2xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-nature-green/10 text-nature-green border border-nature-green/20 font-sans"
+            transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
+            className="inline-flex items-center justify-center px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-nature-green/10 text-green-700 dark:text-nature-green border border-nature-green/20 font-sans"
           >
             Features
           </motion.div>
           <h2 className="text-3xl md:text-5xl font-bold font-sans text-foreground mb-6 tracking-tight">
-            Everything You Need to <span className="text-transparent bg-clip-text bg-gradient-to-r from-nature-green to-ocean-blue">Go Green</span>
+            Everything You Need to <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 dark:from-nature-green dark:to-ocean-blue">Go Green</span>
           </h2>
           <p className="text-muted-foreground text-lg">
             A comprehensive suite of tools designed to help you track, understand, and reduce your environmental impact.
@@ -129,7 +130,7 @@ export function Features() {
                     <feature.icon className={`h-7 w-7 ${feature.iconColor}`} aria-hidden="true" />
                   </div>
                   <motion.div 
-                    whileHover={{ x: 5 }}
+                    whileHover={shouldReduceMotion ? {} : { x: 5 }}
                     className="h-10 w-10 rounded-full border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/50 backdrop-blur-sm"
                   >
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
