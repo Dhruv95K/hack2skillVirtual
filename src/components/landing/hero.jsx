@@ -1,18 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { buttonVariants } from '@/components/ui/button';
 import { ArrowRight, ArrowDown, Leaf } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Hero() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <section className="relative overflow-hidden pt-24 pb-32 md:pt-32 md:pb-40 bg-background text-center">
       {/* Layered Glassmorphism Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex justify-center items-center">
         <motion.div
-          animate={{
+          animate={shouldReduceMotion ? {} : {
             scale: [1, 1.1, 1],
             opacity: [0.3, 0.5, 0.3],
           }}
@@ -20,7 +22,7 @@ export function Hero() {
           className="absolute top-[10%] left-[15%] w-72 h-72 md:w-96 md:h-96 bg-gradient-to-tr from-[#22C55E]/30 to-[#0EA5E9]/20 rounded-full blur-3xl"
         />
         <motion.div
-          animate={{
+          animate={shouldReduceMotion ? {} : {
             scale: [1, 1.2, 1],
             opacity: [0.2, 0.4, 0.2],
           }}
@@ -33,12 +35,13 @@ export function Hero() {
         <div className="max-w-3xl relative">
           {/* Dynamic Gamification Badge Teaser */}
           <motion.div 
+            aria-hidden="true"
             initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
             animate={{ 
               opacity: 1, 
               scale: 1, 
               rotate: 0, 
-              y: [0, -10, 0] 
+              y: shouldReduceMotion ? 0 : [0, -10, 0] 
             }}
             transition={{ 
               opacity: { duration: 0.5, delay: 0.3 },
@@ -65,8 +68,8 @@ export function Hero() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <motion.div
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={shouldReduceMotion ? {} : { scale: 1.05, y: -2 }}
+              whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
               className="w-full sm:w-auto"
             >
@@ -74,7 +77,7 @@ export function Hero() {
                 href="/signup" 
                 className={cn(
                   buttonVariants({ size: "lg" }), 
-                  "bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] text-white rounded-2xl h-14 px-8 text-lg w-full sm:w-auto font-medium shadow-lg hover:shadow-xl transition-all duration-300 border-0"
+                  "bg-gradient-to-r from-[#22C55E] to-[#0EA5E9] hover:from-[#16A34A] hover:to-[#0284C7] text-white rounded-2xl h-14 px-8 text-lg w-full sm:w-auto font-medium shadow-lg hover:shadow-xl transition-all duration-300 border-0"
                 )}
               >
                 Start for Free <ArrowRight className="ml-2 h-5 w-5" />
