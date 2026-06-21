@@ -4,9 +4,9 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Skeleton } from '@/components/ui/skeleton';
 const COLORS = {
-  transport: '#22C55E',
-  food: '#16A34A',
-  energy: '#4ADE80'
+  transport: 'var(--nature-green)',
+  food: 'var(--ocean-blue)',
+  energy: 'var(--sky-blue)'
 };
 export function CategoryDonutChart({
   data,
@@ -39,7 +39,7 @@ export function CategoryDonutChart({
     payload
   }) => {
     if (active && payload && payload.length) {
-      return <div className="bg-surface-2 p-3 rounded-xl border border-surface shadow-lg flex items-center gap-2">
+      return <div data-testid="tooltip-container" className="backdrop-blur-xl bg-surface/50 border border-white/5 shadow-lg rounded-xl flex items-center gap-2 p-3">
           <div className="w-3 h-3 rounded-full" style={{
           backgroundColor: payload[0].payload.color
         }} />
@@ -50,13 +50,13 @@ export function CategoryDonutChart({
     return null;
   };
   return <div className="w-full h-[300px] relative">
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0 mt-[-20px]">
+      <div data-testid="center-label-container" className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
         <span className="text-3xl font-heading font-bold text-white">{total.toFixed(1)}</span>
         <span className="text-sm text-muted-foreground">kg CO₂</span>
       </div>
       <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} className="z-10">
         <PieChart>
-          <Pie data={chartData} cx="50%" cy="45%" innerRadius={80} outerRadius={110} paddingAngle={5} dataKey="value" stroke="none">
+          <Pie data={chartData} cx="50%" cy="50%" innerRadius={80} outerRadius={110} paddingAngle={5} dataKey="value" stroke="none">
             {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
           </Pie>
           <Tooltip content={<CustomTooltip />} />

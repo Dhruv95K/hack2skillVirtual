@@ -4,8 +4,11 @@
 import { Co2TrendChart } from '@/components/charts/co2-trend-chart';
 import { CategoryDonutChart } from '@/components/charts/category-donut-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trophy, Flame, Leaf } from 'lucide-react';
+import { Trophy, Flame, Leaf, TreePine } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
+
+const CO2_PER_TREE_KG = 21;
+
 export function DashboardClient({
   data
 }) {
@@ -39,16 +42,18 @@ export function DashboardClient({
   };
   return <div className="p-6 max-w-6xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-heading font-bold text-white mb-2">Dashboard</h1>
+        <h1 className="text-3xl font-heading font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-nature-green to-ocean-blue">Dashboard</h1>
         <p className="text-muted-foreground">Welcome back! Here's how you're doing.</p>
       </div>
 
-      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div variants={itemVariants}>
-          <Card className="bg-surface border-surface-2">
+      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}>
+          <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total CO₂ Tracked</CardTitle>
-              <Leaf className="w-4 h-4 text-accent" />
+              <div className="p-2 rounded-full bg-[oklch(0.65_0.18_160)]/20">
+                <Leaf className="w-4 h-4 text-[oklch(0.65_0.18_160)]" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-heading font-bold text-white">
@@ -58,11 +63,29 @@ export function DashboardClient({
           </Card>
         </motion.div>
 
-        <motion.div variants={itemVariants}>
-          <Card className="bg-surface border-surface-2">
+        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}>
+          <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Impact Equivalent</CardTitle>
+              <div className="p-2 rounded-full bg-[oklch(0.6_0.15_230)]/20">
+                <TreePine className="w-4 h-4 text-[oklch(0.6_0.15_230)]" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-heading font-bold text-white">
+                {((data?.summary?.totalCo2Tracked || 0) / CO2_PER_TREE_KG).toFixed(1)} <span className="text-sm font-normal text-muted-foreground">trees</span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}>
+          <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Current Streak</CardTitle>
-              <Flame className="w-4 h-4 text-orange-500" />
+              <div className="p-2 rounded-full bg-[oklch(0.7_0.2_40)]/20">
+                <Flame className="w-4 h-4 text-[oklch(0.7_0.2_40)]" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-heading font-bold text-white">
@@ -72,11 +95,13 @@ export function DashboardClient({
           </Card>
         </motion.div>
 
-        <motion.div variants={itemVariants}>
-          <Card className="bg-surface border-surface-2">
+        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}>
+          <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Current Level</CardTitle>
-              <Trophy className="w-4 h-4 text-yellow-500" />
+              <div className="p-2 rounded-full bg-[oklch(0.8_0.15_80)]/20">
+                <Trophy className="w-4 h-4 text-[oklch(0.8_0.15_80)]" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="flex items-baseline gap-2">

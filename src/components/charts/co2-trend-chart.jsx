@@ -34,9 +34,9 @@ export function Co2TrendChart({
     label
   }) => {
     if (active && payload && payload.length) {
-      return <div className="bg-surface-2 p-3 rounded-xl border border-surface shadow-lg">
+      return <div className="p-3 rounded-xl backdrop-blur-xl bg-surface/50 border border-white/5 shadow-lg">
           <p className="font-medium text-white">{payload[0].payload.displayDate}</p>
-          <p className="text-accent">{payload[0].value} kg CO₂</p>
+          <p className="text-[color:var(--nature-green)]">{payload[0].value} kg CO₂</p>
         </div>;
     }
     return null;
@@ -51,14 +51,14 @@ export function Co2TrendChart({
       }}>
           <defs>
             <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#22C55E" stopOpacity={0.4} />
-              <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
+              <stop offset="5%" stopColor="var(--nature-green)" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="var(--nature-green)" stopOpacity={0} />
             </linearGradient>
           </defs>
           <XAxis dataKey="displayDate" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} minTickGap={30} />
           <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={value => `${value}`} />
           <Tooltip content={<CustomTooltip />} />
-          <Area type="monotone" dataKey="co2Kg" stroke="#22C55E" strokeWidth={2} fillOpacity={1} fill="url(#colorCo2)" />
+          <Area type="monotone" dataKey="co2Kg" stroke="var(--nature-green)" strokeWidth={2} fillOpacity={1} fill="url(#colorCo2)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>;

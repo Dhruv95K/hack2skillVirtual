@@ -91,7 +91,7 @@ describe('Landing Page Components', () => {
   describe('Features', () => {
     it('renders the three core features', () => {
       render(<Features />);
-      expect(screen.getByText(/Everything You Need to Go Green/i)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Everything You Need to Go Green/i })).toBeInTheDocument();
       expect(screen.getByText('Smart Activity Logging')).toBeInTheDocument();
       expect(screen.getByText('AI-Powered Insights')).toBeInTheDocument();
       expect(screen.getByText('Gamification & Rewards')).toBeInTheDocument();

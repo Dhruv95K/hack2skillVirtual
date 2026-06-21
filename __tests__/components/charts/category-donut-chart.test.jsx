@@ -18,7 +18,7 @@ jest.mock('recharts', () => ({
   Tooltip: props => {
     if (React.isValidElement(props.content)) {
       const Content = props.content.type;
-      return <div data-testid="tooltip-container">
+      return <div data-testid="mock-tooltip-container">
           <Content active={true} payload={[{
           payload: {
             color: '#22C55E'
@@ -65,5 +65,37 @@ describe('CategoryDonutChart', () => {
     // Checks that the total label is correctly calculated and rendered
     expect(screen.getByText('15.5')).toBeInTheDocument();
     expect(screen.getByText('kg CO₂')).toBeInTheDocument();
+  });
+
+  it('renders the total label with correct typography and centering', () => {
+    const validData = {
+      transport: 10.5,
+      food: 5,
+      energy: 0
+    };
+    render(<CategoryDonutChart data={validData} />);
+    
+    const totalLabel = screen.getByText('15.5');
+    expect(totalLabel).toHaveClass('font-heading');
+    
+    // Check for parent container styling (no negative margin)
+    const labelContainer = screen.getByTestId('center-label-container');
+    expect(labelContainer).not.toHaveClass('mt-[-20px]');
+    expect(labelContainer).toHaveClass('absolute', 'inset-0', 'flex', 'flex-col', 'items-center', 'justify-center');
+  });
+
+  it('renders custom tooltip with glassmorphism styling', () => {
+    const validData = {
+      transport: 10.5,
+      food: 5,
+      energy: 0
+    };
+    render(<CategoryDonutChart data={validData} />);
+    
+    const tooltipContainer = screen.getByTestId('mock-tooltip-container');
+    const customTooltip = tooltipContainer.firstElementChild;
+    
+    // Test for expected glassmorphism classes
+    expect(customTooltip).toHaveClass('backdrop-blur-xl', 'bg-surface/50', 'border', 'border-white/5', 'shadow-lg', 'rounded-xl');
   });
 });
