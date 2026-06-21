@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities */
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 const PROTECTED_ROUTES = ['/dashboard', '/log', '/quiz', '/insights', '/gamification'];

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
@@ -23,7 +22,7 @@ export async function POST(request) {
   let body;
   try {
     body = await request.json();
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
   const validation = signupSchema.safeParse(body);
@@ -66,7 +65,7 @@ export async function POST(request) {
         name
       }
     });
-  } catch (err) {
+  } catch {
     // If user already exists in Prisma but signed up in Supabase (or other db error), rollback auth
     const supabaseAdmin = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
     await supabaseAdmin.auth.admin.deleteUser(data.user.id);

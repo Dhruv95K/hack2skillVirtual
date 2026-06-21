@@ -1,6 +1,5 @@
 import { LEVEL_THRESHOLDS, BADGE_DEFINITIONS } from './gamification';
 import { prisma } from './prisma';
-import { User } from '@prisma/client';
 export function computeLevel(co2Saved) {
   const thresholds = [...LEVEL_THRESHOLDS].sort((a, b) => b.minCO2Tracked - a.minCO2Tracked);
   const found = thresholds.find(t => co2Saved >= t.minCO2Tracked);

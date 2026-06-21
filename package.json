@@ -45,9 +45,9 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.1",
-    "@babel/plugin-syntax-jsx": "^8.0.1",
-    "@babel/preset-typescript": "^8.0.1",
+    "@babel/core": "^7.24.0",
+    "@babel/plugin-syntax-jsx": "^7.24.0",
+    "@babel/preset-typescript": "^7.24.0",
     "@playwright/test": "^1.61.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",

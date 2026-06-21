@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, react/no-unescaped-entities */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
@@ -80,7 +79,7 @@ export async function POST(request) {
   let body;
   try {
     body = await request.json();
-  } catch (e) {
+  } catch {
     return NextResponse.json({
       error: 'Invalid JSON'
     }, {
@@ -123,7 +122,7 @@ export async function POST(request) {
   let co2Kg;
   try {
     co2Kg = calculateActivityCO2(category, subType, quantity);
-  } catch (e) {
+  } catch {
     return NextResponse.json({
       error: e.message
     }, {
