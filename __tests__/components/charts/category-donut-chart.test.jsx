@@ -18,7 +18,7 @@ jest.mock('recharts', () => ({
   Tooltip: props => {
     if (React.isValidElement(props.content)) {
       const Content = props.content.type;
-      return <div data-testid="tooltip-container">
+      return <div data-testid="mock-tooltip-container">
           <Content active={true} payload={[{
           payload: {
             color: '#22C55E'
@@ -79,7 +79,7 @@ describe('CategoryDonutChart', () => {
     expect(totalLabel).toHaveClass('font-heading');
     
     // Check for parent container styling (no negative margin)
-    const labelContainer = totalLabel.closest('div');
+    const labelContainer = screen.getByTestId('center-label-container');
     expect(labelContainer).not.toHaveClass('mt-[-20px]');
     expect(labelContainer).toHaveClass('absolute', 'inset-0', 'flex', 'flex-col', 'items-center', 'justify-center');
   });
@@ -92,7 +92,7 @@ describe('CategoryDonutChart', () => {
     };
     render(<CategoryDonutChart data={validData} />);
     
-    const tooltipContainer = screen.getByTestId('tooltip-container');
+    const tooltipContainer = screen.getByTestId('mock-tooltip-container');
     const customTooltip = tooltipContainer.firstElementChild;
     
     // Test for expected glassmorphism classes
