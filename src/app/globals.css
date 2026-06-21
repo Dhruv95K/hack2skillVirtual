@@ -8,14 +8,11 @@
 /* Tailwind v4 uses @theme for design tokens instead of tailwind.config.ts */
 
 :root {
-  --surface: #0F172A;
-  --surface-2: #1E293B;
   --nature-green: oklch(0.65 0.18 160);
   --ocean-blue: oklch(0.6 0.15 230);
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-hover: all 0.2s ease-in-out;
   --accent: var(--nature-green);
-  --accent-hover: oklch(0.55 0.18 160);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -52,12 +49,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
   --color-nature-green: var(--nature-green);
   --color-ocean-blue: var(--ocean-blue);
   --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
+  --transition-smooth: var(--transition-smooth);
+  --transition-hover: var(--transition-hover);
   --font-heading: var(--font-sans);
   --font-body: var(--font-fira-sans), sans-serif;
   --font-sans: var(--font-sans);
