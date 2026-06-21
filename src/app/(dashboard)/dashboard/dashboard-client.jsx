@@ -44,7 +44,7 @@ export function DashboardClient({
       </div>
 
       <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }} data-testid="stat-card-total-co2">
+        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}>
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total CO₂ Tracked</CardTitle>
@@ -60,7 +60,7 @@ export function DashboardClient({
           </Card>
         </motion.div>
 
-        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }} data-testid="stat-card-impact-equivalent">
+        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}>
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Impact Equivalent</CardTitle>
@@ -76,12 +76,12 @@ export function DashboardClient({
           </Card>
         </motion.div>
 
-        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }} data-testid="stat-card-current-streak">
+        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}>
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Current Streak</CardTitle>
-              <div className="p-2 rounded-full bg-orange-500/20">
-                <Flame className="w-4 h-4 text-orange-500" />
+              <div className="p-2 rounded-full bg-[oklch(0.7_0.2_40)/0.2]">
+                <Flame className="w-4 h-4 text-[oklch(0.7_0.2_40)]" />
               </div>
             </CardHeader>
             <CardContent>
@@ -92,12 +92,12 @@ export function DashboardClient({
           </Card>
         </motion.div>
 
-        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }} data-testid="stat-card-current-level">
+        <motion.div variants={itemVariants} whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}>
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Current Level</CardTitle>
-              <div className="p-2 rounded-full bg-yellow-500/20">
-                <Trophy className="w-4 h-4 text-yellow-500" />
+              <div className="p-2 rounded-full bg-[oklch(0.8_0.15_80)/0.2]">
+                <Trophy className="w-4 h-4 text-[oklch(0.8_0.15_80)]" />
               </div>
             </CardHeader>
             <CardContent>
@@ -120,7 +120,7 @@ export function DashboardClient({
       }} transition={{
         delay: 0.3
       }} className="lg:col-span-2">
-          <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5 h-full">
+          <Card className="bg-surface border-surface-2 h-full">
             <CardHeader>
               <CardTitle className="text-lg text-white">30-Day Trend</CardTitle>
             </CardHeader>
@@ -139,7 +139,7 @@ export function DashboardClient({
       }} transition={{
         delay: 0.4
       }} className="lg:col-span-1">
-          <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5 h-full">
+          <Card className="bg-surface border-surface-2 h-full">
             <CardHeader>
               <CardTitle className="text-lg text-white">All-Time Breakdown</CardTitle>
             </CardHeader>
