@@ -10,7 +10,7 @@
 :root {
   --nature-green: oklch(0.65 0.18 160);
   --ocean-blue: oklch(0.6 0.15 230);
-  --sky-blue: #0284C7;
+  --sky-blue: oklch(0.55 0.14 240);
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-hover: all 0.2s ease-in-out;
   --accent: var(--nature-green);

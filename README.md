@@ -13,7 +13,7 @@ EcoTrack provides an intuitive, gamified user journey accessible across all devi
 1. **Onboarding Quiz** — Establish a baseline understanding of the user's lifestyle (dietary habits, typical commute, home energy usage) to calculate an initial carbon footprint estimate.
 2. **Daily Activity Tracking** — Users log sustainable actions (e.g., taking public transit, eating a plant-based meal, hanging clothes to dry). The system automatically calculates the exact CO2 emissions saved based on verified, generalized emission factors.
 3. **AI-Powered Climate Insights** — After logging activities, the app calls the Google Gemini 2.5 Flash API (server-side) with the user's recent history to generate highly personalized, actionable tips for further emission reductions.
-4. **Dashboard & Data Visualization** — An interactive overview of the user's current level, streak counter, total CO2 saved, and responsive SVG charts showing trends across different emission categories (Transport, Diet, Energy).
+4. **Dashboard & Data Visualization** — An interactive overview featuring our new Organic Biophilic UI with a 4-column Bento grid. It displays the user's current level, streak counter, total CO2 saved, and a tangible "Impact Equivalent" metric (e.g., equivalent number of trees saved). It also includes responsive SVG charts with OKLCH glassmorphism tooltips showing trends across different emission categories (Transport, Diet, Energy).
 5. **Gamification System** — Users earn badges, level up (e.g., from "Seedling" to "Tree"), and build daily streaks. This leverages positive reinforcement to build long-term sustainable habits.
 
 ## Approach and Logic
@@ -24,6 +24,7 @@ We prioritized **Security, Code Quality, Accessibility, and Efficiency** through
 - **AI Personalization:** Gemini 2.5 Flash analyzes specific activity patterns. The API call is made purely server-side so the API key is never exposed to the client, ensuring secure and efficient usage.
 - **Data Storage:** Supabase Postgres (accessed via Prisma ORM) with tables for users, activities, and gamification metrics. The database schema includes optimized indexes for fast retrieval.
 - **Performance & Efficiency:** Heavy use of React 19 Server Components minimizes the client-side JavaScript bundle. Next.js Data Cache and Route Cache prevent redundant API calls, ensuring high performance. The repository is kept lean (< 10 MB) by utilizing vector graphics over raster images.
+- **Design & UI:** The application employs an Organic Biophilic Dashboard UI leveraging a 4-column Bento grid, Framer Motion hover states, dynamic `var(--nature-green)` tokens, and Nature Green to Ocean Blue gradients to create a premium, engaging aesthetic without bloating the repository size.
 - **Accessibility:** Designed inclusively with full keyboard navigability, semantic HTML, ARIA labels, and `prefers-reduced-motion` support for animations. The UI adheres to strict WCAG AA color contrast guidelines.
 
 ## Tech Stack
