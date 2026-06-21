@@ -19,7 +19,7 @@ export function Hero() {
             opacity: [0.3, 0.5, 0.3],
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[10%] left-[15%] w-72 h-72 md:w-96 md:h-96 bg-gradient-to-tr from-[#22C55E]/30 to-[#0EA5E9]/20 rounded-full blur-3xl"
+          className="absolute top-[10%] left-[15%] w-72 h-72 md:w-96 md:h-96 bg-gradient-to-tr from-nature-green/30 to-ocean-blue/20 rounded-full blur-3xl"
         />
         <motion.div
           animate={shouldReduceMotion ? {} : {
@@ -27,7 +27,7 @@ export function Hero() {
             opacity: [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute bottom-[10%] right-[15%] w-80 h-80 md:w-[28rem] md:h-[28rem] bg-gradient-to-tr from-[#0EA5E9]/20 to-[#16A34A]/30 rounded-full blur-3xl"
+          className="absolute bottom-[10%] right-[15%] w-80 h-80 md:w-[28rem] md:h-[28rem] bg-gradient-to-tr from-ocean-blue/20 to-nature-green/30 rounded-full blur-3xl"
         />
       </div>
 
