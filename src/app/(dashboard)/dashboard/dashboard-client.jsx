@@ -48,8 +48,8 @@ export function DashboardClient({
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total CO₂ Tracked</CardTitle>
-              <div className="p-2 rounded-full bg-nature-green/20">
-                <Leaf className="w-4 h-4 text-nature-green" />
+              <div className="p-2 rounded-full bg-[oklch(0.65_0.18_160)/0.2]">
+                <Leaf className="w-4 h-4 text-[oklch(0.65_0.18_160)]" />
               </div>
             </CardHeader>
             <CardContent>
@@ -64,8 +64,8 @@ export function DashboardClient({
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Impact Equivalent</CardTitle>
-              <div className="p-2 rounded-full bg-ocean-blue/20">
-                <TreePine className="w-4 h-4 text-ocean-blue" />
+              <div className="p-2 rounded-full bg-[oklch(0.6_0.15_230)/0.2]">
+                <TreePine className="w-4 h-4 text-[oklch(0.6_0.15_230)]" />
               </div>
             </CardHeader>
             <CardContent>
