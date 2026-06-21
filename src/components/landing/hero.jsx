@@ -1,20 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { buttonVariants } from '@/components/ui/button';
 import { ArrowRight, ArrowDown, Leaf } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Hero() {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
     <section className="relative overflow-hidden pt-24 pb-32 md:pt-32 md:pb-40 bg-background text-center">
       {/* Layered Glassmorphism Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex justify-center items-center">
         <motion.div
-          animate={shouldReduceMotion ? {} : {
+          animate={{
             scale: [1, 1.1, 1],
             opacity: [0.3, 0.5, 0.3],
           }}
@@ -22,7 +20,7 @@ export function Hero() {
           className="absolute top-[10%] left-[15%] w-72 h-72 md:w-96 md:h-96 bg-gradient-to-tr from-[#22C55E]/30 to-[#0EA5E9]/20 rounded-full blur-3xl"
         />
         <motion.div
-          animate={shouldReduceMotion ? {} : {
+          animate={{
             scale: [1, 1.2, 1],
             opacity: [0.2, 0.4, 0.2],
           }}
@@ -32,12 +30,7 @@ export function Hero() {
       </div>
 
       <div className="container relative z-10 mx-auto px-4 flex flex-col items-center">
-        <motion.div 
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
-          className="max-w-3xl relative"
-        >
+        <div className="max-w-3xl relative">
           {/* Dynamic Gamification Badge Teaser */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
@@ -45,7 +38,7 @@ export function Hero() {
               opacity: 1, 
               scale: 1, 
               rotate: 0, 
-              y: shouldReduceMotion ? 0 : [0, -10, 0] 
+              y: [0, -10, 0] 
             }}
             transition={{ 
               opacity: { duration: 0.5, delay: 0.3 },
@@ -72,8 +65,8 @@ export function Hero() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <motion.div
-              whileHover={shouldReduceMotion ? {} : { scale: 1.05, y: -2 }}
-              whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
               className="w-full sm:w-auto"
             >
@@ -98,15 +91,10 @@ export function Hero() {
               See how it works <ArrowDown className="ml-2 h-5 w-5" />
             </Link>
           </div>
-        </motion.div>
+        </div>
 
         {/* Stats Row */}
-        <motion.div 
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-8 border-t border-border/50 w-full max-w-4xl"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-8 border-t border-border/50 w-full max-w-4xl">
           <div className="flex flex-col items-center">
             <span className="text-3xl font-bold text-foreground font-[family-name:var(--font-fira-code)]">500+</span>
             <span className="text-sm text-muted-foreground mt-1">users</span>
@@ -119,7 +107,7 @@ export function Hero() {
             <span className="text-3xl font-bold text-[#22C55E] font-[family-name:var(--font-fira-code)]">1000+</span>
             <span className="text-sm text-muted-foreground mt-1">kg CO₂ saved</span>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
