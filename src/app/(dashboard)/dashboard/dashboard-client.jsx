@@ -6,6 +6,9 @@ import { CategoryDonutChart } from '@/components/charts/category-donut-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy, Flame, Leaf, TreePine } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
+
+const CO2_PER_TREE_KG = 21;
+
 export function DashboardClient({
   data
 }) {
@@ -48,7 +51,7 @@ export function DashboardClient({
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total CO₂ Tracked</CardTitle>
-              <div className="p-2 rounded-full bg-[oklch(0.65_0.18_160)/0.2]">
+              <div className="p-2 rounded-full bg-[oklch(0.65_0.18_160)]/20">
                 <Leaf className="w-4 h-4 text-[oklch(0.65_0.18_160)]" />
               </div>
             </CardHeader>
@@ -64,13 +67,13 @@ export function DashboardClient({
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Impact Equivalent</CardTitle>
-              <div className="p-2 rounded-full bg-[oklch(0.6_0.15_230)/0.2]">
+              <div className="p-2 rounded-full bg-[oklch(0.6_0.15_230)]/20">
                 <TreePine className="w-4 h-4 text-[oklch(0.6_0.15_230)]" />
               </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-heading font-bold text-white">
-                {(data.summary.totalCo2Tracked / 21).toFixed(1)} <span className="text-sm font-normal text-muted-foreground">trees</span>
+                {((data?.summary?.totalCo2Tracked || 0) / CO2_PER_TREE_KG).toFixed(1)} <span className="text-sm font-normal text-muted-foreground">trees</span>
               </div>
             </CardContent>
           </Card>
@@ -80,7 +83,7 @@ export function DashboardClient({
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Current Streak</CardTitle>
-              <div className="p-2 rounded-full bg-[oklch(0.7_0.2_40)/0.2]">
+              <div className="p-2 rounded-full bg-[oklch(0.7_0.2_40)]/20">
                 <Flame className="w-4 h-4 text-[oklch(0.7_0.2_40)]" />
               </div>
             </CardHeader>
@@ -96,7 +99,7 @@ export function DashboardClient({
           <Card className="rounded-3xl backdrop-blur-xl bg-surface/50 border-white/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Current Level</CardTitle>
-              <div className="p-2 rounded-full bg-[oklch(0.8_0.15_80)/0.2]">
+              <div className="p-2 rounded-full bg-[oklch(0.8_0.15_80)]/20">
                 <Trophy className="w-4 h-4 text-[oklch(0.8_0.15_80)]" />
               </div>
             </CardHeader>
